@@ -84,13 +84,13 @@ The demo prints TE/PSE-style structural diagnostics for a small run so ICDM read
 ### Install
 
 ```bash
-git clone https://github.com/VivianJiang-GingerRose/fair-causal-discovery-icdm.git
+git clone <repository-url>
 cd fair-causal-discovery-icdm
 poetry install
 poetry run python --version
 ```
 
-The repository directory in this workspace may appear as `FairCausalDiscovery_ICDM`; the canonical GitHub repository name is `fair-causal-discovery-icdm`.
+The repository directory in this workspace may appear as `FairCausalDiscovery_ICDM`; use your cloned folder name if it differs.
 
 ### Optional: Run Tests
 
