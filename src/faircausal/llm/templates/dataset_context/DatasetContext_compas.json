@@ -1,0 +1,161 @@
+[
+    {
+        "_schema": {
+            "dataset_name": {
+                "type": "String",
+                "description": "The official, human-readable name of the dataset."
+            },
+            "dataset_context": {
+                "type": "String",
+                "description": "A high-level paragraph describing the dataset's origin and contents."
+            },
+            "country_or_region": {
+                "type": "String",
+                "description": "The geographical and legal context for the data, used for reasoning about laws and norms."
+            },
+            "data_collection_period": {
+                "type": "String",
+                "description": "The time frame when the data was collected, crucial for historical context."
+            },
+            "expert_persona": {
+                "type": "String",
+                "description": "The expert role the LLM should adopt for the analysis."
+            },
+            "societal_considerations": {
+                "type": "String",
+                "description": "Specific, nuanced historical and social factors for the LLM to focus on."
+            },
+            "prediction_context": {
+                "type": "String",
+                "description": "Describes the future application context for the model."
+            },
+            "outcome_variable": {
+                "type": "String",
+                "description": "The machine-readable name of the target variable for prediction."
+            },
+            "outcome_variable_description": {
+                "type": "String",
+                "description": "A human-readable description of the prediction goal."
+            },
+            "root_nodes_list": {
+                "type": "Array of Strings",
+                "description": "A list of variable names that are considered exogenous (root) nodes."
+            },
+            "root_nodes_description": {
+                "type": "String",
+                "description": "A brief, human-readable explanation of why these variables are root nodes."
+            },
+            "example_root_node": {
+                "type": "String",
+                "description": "A single example of a root node, used for formatting examples in the prompt."
+            },
+            "example_influential_variable": {
+                "type": "String",
+                "description": "A variable that is known to be influential but not deterministic, for use in examples."
+            },
+            "example_mediating_pathways": {
+                "type": "Array of Strings",
+                "description": "A list of legitimate mediating variables for the LLM to consider."
+            },
+            "columns": {
+                "type": "Array of Strings",
+                "description": "A simple list of all column names in the dataset."
+            },
+            "column_details": {
+                "type": "Object",
+                "description": "An object where each key is a column name. The value is another object containing a 'description' (String) and 'datatype' (String) for that column."
+            }
+        },
+        "dataset_name": "COMPAS Recidivism Risk Assessment",
+        "dataset_context": "This dataset contains criminal justice risk assessment data from the Correctional Offender Management Profiling for Alternative Sanctions (COMPAS) system used in Broward County, Florida. The data includes demographic information, criminal history, and risk scores for defendants assessed between 2013-2014. The COMPAS system was designed to predict recidivism risk to inform pretrial detention, bail, and sentencing decisions. The outcome variable of interest is 'two_year_recid' (two-year recidivism).",
+        "country_or_region": "United States (Broward County, Florida)",
+        "data_collection_period": "2013 to 2014",
+        "expert_persona": "a criminal justice policy analyst and civil rights expert with expertise in algorithmic bias in criminal justice systems, constitutional equal protection law, racial disparities in policing and sentencing, and the historical context of discriminatory practices in the U.S. criminal justice system",
+        "societal_considerations": "Consider the long history of racial discrimination in the U.S. criminal justice system, including disparities in policing, arrest rates, prosecution, and sentencing that disproportionately affect Black and Hispanic communities. Analyze how algorithmic risk assessment tools like COMPAS may perpetuate or amplify existing biases in the system. Evaluate the ethical implications of using demographic characteristics and criminal history patterns that may reflect systemic inequalities rather than individual risk. Consider the constitutional requirements of equal protection under the law and due process rights in pretrial and sentencing contexts.",
+        "prediction_context": "modern, fair, and constitutional criminal justice risk assessment systems that comply with equal protection requirements and minimize discriminatory impact while maintaining public safety",
+        "outcome_variable": "two_year_recid",
+        "outcome_variable_description": "whether the individual was arrested for a new crime within two years of the COMPAS assessment (binary: 0=no recidivism, 1=recidivism)",
+        "root_nodes_list": [
+            "race_cat",
+            "sex",
+            "age_cat"
+        ],
+        "root_nodes_description": "fundamental demographic characteristics that are largely immutable and established at birth or early in life, which influence subsequent life experiences including interactions with the criminal justice system",
+        "example_root_node": "race_cat",
+        "example_influential_variable": "priors_count_cat",
+        "example_mediating_pathways": [
+            "c_charge_degree",
+            "priors_count_cat",
+            "juv_fel_count_cat",
+            "juv_misd_count_cat",
+            "juv_other_count_cat",
+            "days_b_screening_arrest_cat",
+            "c_days_from_compas_cat",
+            "decile_score_cat"
+        ],
+        "columns": [
+            "sex",
+            "race_cat",
+            "age_cat",
+            "c_charge_degree",
+            "juv_fel_count_cat",
+            "juv_misd_count_cat",
+            "juv_other_count_cat",
+            "priors_count_cat",
+            "days_b_screening_arrest_cat",
+            "c_days_from_compas_cat",
+            "decile_score_cat",
+            "two_year_recid"
+        ],
+        "column_details": {
+            "sex": {
+                "description": "Gender of the individual, encoded as categorical integer (0-based indexing).",
+                "datatype": "Categorical (Binary/Integer)"
+            },
+            "race_cat": {
+                "description": "Race category, preprocessed into binary classification: typically 0=non-white, 1=white.",
+                "datatype": "Categorical (Binary/Integer)"
+            },
+            "age_cat": {
+                "description": "Age group category derived from age at time of assessment, encoded as categorical integer (0-based indexing: typically representing ranges like '25 or Less', '26-45', 'Greater than 45').",
+                "datatype": "Categorical (Ordinal/Integer)"
+            },
+            "c_charge_degree": {
+                "description": "Degree of the current charge, encoded as categorical integer (0-based indexing of charge severity levels).",
+                "datatype": "Categorical (Ordinal/Integer)"
+            },
+            "juv_fel_count_cat": {
+                "description": "Juvenile felony count category, preprocessed into binary: typically 0=no juvenile felonies, 1=one or more juvenile felonies.",
+                "datatype": "Categorical (Binary/Integer)"
+            },
+            "juv_misd_count_cat": {
+                "description": "Juvenile misdemeanor count category, preprocessed into categories: typically 0=no juvenile misdemeanors, 1=one juvenile misdemeanor, 2=two or more juvenile misdemeanors.",
+                "datatype": "Categorical (Ordinal/Integer)"
+            },
+            "juv_other_count_cat": {
+                "description": "Juvenile other offense count category, preprocessed into categories: typically 0=no juvenile other offenses, 1=one juvenile other offense, 2=two or more juvenile other offenses.",
+                "datatype": "Categorical (Ordinal/Integer)"
+            },
+            "priors_count_cat": {
+                "description": "Prior convictions count category, preprocessed into multiple categories representing ranges of prior conviction counts (e.g., 0, 1, 2-3, 4-6, 7-9, 10-15, 15+).",
+                "datatype": "Categorical (Ordinal/Integer)"
+            },
+            "days_b_screening_arrest_cat": {
+                "description": "Days between COMPAS screening and arrest category, preprocessed into categories representing different time ranges relative to screening date.",
+                "datatype": "Categorical (Ordinal/Integer)"
+            },
+            "c_days_from_compas_cat": {
+                "description": "Days from current charge to COMPAS assessment category, preprocessed into categories representing different time ranges (e.g., 0, 1, 2-7, 8-14, 15-21, 22-28, 29+ days).",
+                "datatype": "Categorical (Ordinal/Integer)"
+            },
+            "decile_score_cat": {
+                "description": "Original COMPAS decile risk score category, preprocessed into categories representing score ranges (e.g., 1-2=low risk, 3=low-medium, 4-5=medium, 6-7=medium-high, 8-10=high risk). Note: This should be used with caution due to documented bias in the original COMPAS system.",
+                "datatype": "Categorical (Ordinal/Integer)"
+            },
+            "two_year_recid": {
+                "description": "Two-year recidivism outcome: whether the individual was arrested for a new crime within two years of the COMPAS assessment, binary encoded: 0=no recidivism, 1=recidivism. This is the target outcome variable for the analysis.",
+                "datatype": "Categorical (Binary/Integer)"
+            }
+        }
+    }
+]

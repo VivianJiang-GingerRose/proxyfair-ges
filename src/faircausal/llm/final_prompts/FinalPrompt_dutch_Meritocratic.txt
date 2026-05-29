@@ -1,0 +1,124 @@
+# Fairness-Aware Causal Discovery for Dutch
+## Framework: Meritocratic (Equal Opportunity)
+
+You are an **organizational psychologist and economist specializing in meritocracy and equal opportunity**. Apply the **meritocratic principle**: outcomes should be determined by **legitimate merit** (skills, effort, qualifications acquired through fair processes), NOT by **ascriptive characteristics** (demographics) or **accumulated advantages** (family wealth, inherited status).
+
+**CRITICAL INSTRUCTION - DISTINGUISH MERIT FROM ADVANTAGE:**
+- **Allow** edges through variables representing genuine merit: education (if access was fair), skills, work experience, demonstrated performance
+- **Block** edges from ascriptive characteristics: race, gender, family background
+- **Carefully evaluate** edges from variables that mix merit and advantage: education (merit if earned, advantage if inherited access), job type (merit if based on skills, advantage if based on connections)
+
+**Your task is to allow legitimate merit pathways while blocking ascriptive and inherited advantage pathways.**
+
+## Dataset Context
+This dataset is a preprocessed version of a Dutch national census, curated for causal discovery analysis using structure learning algorithms such as GES. The data consists of demographic, socio-economic, and employment-related variables for individuals in the Netherlands. The outcome variable of interest is 'occupation'.
+
+**Key Context:**
+Consider historical and legal efforts toward gender equality in the Dutch labor market, the presence of occupational segregation by gender, and evolving social norms surrounding work and family. Analyze how these factors may have influenced both employment opportunities and census data collection.
+
+The data reflects the state of affairs in **Netherlands** around **2000s**.
+
+## Prediction Task
+The goal is to build a model that predicts **occupation classification** (the `occupation` variable).
+
+## Variables
+- age: Age of the individual. (datatype: Categorical (Ordinal/String))
+- household_position: Position of the individual within the household. (datatype: Categorical (Nominal/String))
+- household_size: Size of the household. (datatype: Categorical (Ordinal/String))
+- prev_residence_place: Previous place of residence. (datatype: Categorical (Nominal/String))
+- citizenship: Citizenship status of the individual. (datatype: Categorical (Nominal/String))
+- country_birth: Country of birth of the individual. (datatype: Categorical (Nominal/String))
+- edu_level: Highest education level achieved. (datatype: Categorical (Ordinal/String))
+- economic_status: Economic status of the individual. (datatype: Categorical (Nominal/String))
+- cur_eco_activity: Current economic activity. (datatype: Categorical (Nominal/String))
+- marital_status: Marital status of the individual. (datatype: Categorical (Nominal/String))
+- occupation: **TARGET OUTCOME** - Occupation of the individual. This is the target outcome variable for the analysis. (datatype: Categorical (Nominal/String))
+- sex_enc: Encoded gender: '0' for male, '1' for female, '-1' for unmapped. Derived from the original 'sex' column. This is the primary protected attribute in this analysis setup. (datatype: Categorical (Binary/String))
+
+---
+
+## Task 1: Classify Variables by Merit Type
+
+Classify each variable into one of four categories:
+
+**Category 1 - Ascriptive (Never Legitimate):**
+Demographic characteristics that individuals do not control and that should never influence outcomes (race, gender, age, family background).
+
+**Category 2 - Pure Merit (Always Legitimate):**
+Variables representing effort, skills, or qualifications genuinely earned through fair processes (test scores from unbiased tests, demonstrated work performance, skills acquired through training).
+
+**Category 3 - Mixed Merit/Advantage (Context-Dependent):**
+Variables that could represent merit but often reflect accumulated advantage (education level, job type, professional credentials). These require careful case-by-case evaluation.
+
+**Category 4 - Structural Advantage (Not Legitimate Merit):**
+Variables representing inherited or accumulated advantages that do not reflect individual effort (parent income, family wealth, neighborhood quality, elite school access).
+
+For each variable:
+- **Variable:** `variable_name`
+- **Category:** [1, 2, 3, or 4]
+- **Rationale:** [Explain classification, especially for Category 3]
+
+---
+
+## Task 2: Propose Causal Edge Constraints
+
+### 1. WHITELISTED EDGES (Must Exist - Deterministic Causal Links)
+List only deterministic causal relationships.
+
+Format as:
+- Source → Target: Brief justification.
+
+### 2. BLACKLISTED EDGES (Forbidden)
+
+**Type A - Theoretically Impossible:**
+- List edges where target is root node: **`age`, `sex_enc`, `country_birth`**. **This includes edges between root nodes themselves** - root nodes cannot cause each other (e.g., if both `race_cat` and `male_cat` are root nodes, blacklist both (`race_cat`, `male_cat`) and (`male_cat`, `race_cat`) in both directions).
+- List edges that violate temporal ordering.
+
+Format as:
+- Source → Target: Explanation.
+
+**Type B - Violations of Meritocratic Fairness:**
+**List edges from Category 1 (Ascriptive) and Category 4 (Structural Advantage) variables to the outcome variable (`occupation`).**
+
+**For Category 3 (Mixed Merit/Advantage): Use your judgment:**
+- If the variable primarily reflects inherited advantage in this context → **BLOCK**
+- If it primarily reflects genuine merit → **ALLOW**
+
+**Decision Rule:**
+- Category 1 (Ascriptive) → `occupation`: **ALWAYS BLOCK**
+- Category 2 (Pure Merit) → `occupation`: **ALWAYS ALLOW**
+- Category 3 (Mixed) → `occupation`: **EVALUATE** (default to ALLOW if merit component is substantial)
+- Category 4 (Advantage) → `occupation`: **BLOCK**
+
+Format as:
+- Source → Target: Explanation of why this violates meritocratic principles.
+
+**Example:**
+- age → y: BLOCK (ascriptive characteristic)
+- education → y: ALLOW (represents acquired knowledge and skills, even if access was unequal)
+- parent_income → y: BLOCK (inherited advantage, not individual merit)
+- job_skills → y: ALLOW (demonstrates merit)
+- elite_school_attended → y: BLOCK (primarily signals family advantage, not individual merit)
+
+**IMPORTANT:**
+For Type B, only list edges that are otherwise causally plausible (i.e., it is theoretically possible for the source variable to cause the target variable, barring the specific meritocratic fairness reason). If an edge is theoretically impossible (e.g., target is root node, temporal violation), it belongs in Type A, not Type B.
+
+---
+
+## Machine-Readable Output
+
+# Define whitelisted edges
+whitelisted_edges = [
+    ("source_variable_1", "target_variable_1"),
+]
+
+# Define blacklisted edges (theoretical impossibility)
+blacklisted_edges_type_A = [
+    ("source_variable_A1", "target_variable_A1"),
+]
+
+# Define blacklisted edges (ascriptive and advantage-based)
+blacklisted_edges_type_B = [
+    ("ascriptive_variable_1", "occupation"),
+    ("advantage_variable_1", "occupation"),
+]

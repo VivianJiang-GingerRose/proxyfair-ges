@@ -1,0 +1,112 @@
+{
+  "dataset_name": "bank",
+  "description": "Bank marketing Dataset Configuration for Fair Causal Discovery",
+  
+  "data_settings": {
+    "data_loader_module": "src.faircausal.data.data_loader_bank",
+    "data_path": "data/data_bank_marketing/bank-full.csv",
+    "preprocessed_export_path": "data/data_bank_marketing/bank_preprocessed.csv"
+  },
+  
+  "fairness_settings": {
+    "protected_attrs": ["marital", "age"],
+    "target": "y",
+    "disadvantage_group": {
+      "age": 1,
+      "marital": 1
+    }
+  },
+  
+  "variable_settings": {
+    "var_types": {
+      "marital": "binary",
+      "y": "binary",
+      "default": "binary",
+      "housing": "binary",
+      "loan": "binary",
+      "balance": "binary",
+      "day": "binary",
+      "job": "categorical",
+      "education": "categorical",
+      "contact": "categorical",
+      "month": "categorical",
+      "poutcome": "categorical",
+      "age": "categorical",
+      "duration": "categorical",
+      "campaign": "categorical",
+      "pdays": "categorical",
+      "previous": "categorical"
+    }
+  },
+  
+  "constraint_settings": {
+    "whitelist_edges": [
+    ],
+    
+    "blacklist_edges": {
+      "demographic_constraints": [
+      ["balance", "age"],
+      ["housing", "age"],
+      ["loan", "age"],
+      ["contact", "age"],
+      ["day", "age"],
+      ["month", "age"],
+      ["duration", "age"],
+      ["campaign", "age"],
+      ["pdays", "age"],
+      ["previous", "age"],
+      ["poutcome", "age"],
+      ["y", "age"],
+      ["job", "age"],
+      ["marital", "age"],
+      ["education", "age"],
+      ["default", "age"],
+      ["job", "marital"],
+      ["y", "marital"],
+      ["y", "duration"],
+      ["y", "campaign"],
+      ["poutcome", "previous"]
+      ],
+      
+      "fairness_constraints": [
+        ["age", "y"],
+        ["marital", "y"]
+      ]
+    }
+  },
+  
+  "experiment_settings": {
+    "max_dags": 100,
+    "save_models": false,
+    "generate_synthetic": true,
+    "synthetic_variants": {
+      "double": false,
+      "balanced": false,
+      "protected": false
+    }
+  },
+
+  "soft_fairness_settings": {
+    "lambda": 1,
+    "lambda_strategy": "normative_anchoring",
+    "lambda_grid": [0, 0.1, 0.5, 1.0, 2.0, 5.0, 10.0],
+    "epsilon": 0.05,
+    "fairness_metric": "TE",
+    "path_effect_method": "distance",
+    "tau_c": 5,
+    "beta": 0.0,
+    "max_stage2_dags": 50
+  },
+
+  "counterfactual_settings": {
+    "sample_percentage": 0.5,
+    "min_samples": 10,
+    "random_state": 42,
+    "structure_discovery_ratio": 0.5,
+    "enable_sample_splitting": true,
+    "cutoff_threshold": 0.5,
+    "calculate_pse": true,
+    "pse_sample_size": 300,
+    "max_paths": 3
+  }
+}

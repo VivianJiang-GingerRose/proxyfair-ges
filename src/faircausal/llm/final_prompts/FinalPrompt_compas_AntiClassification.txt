@@ -1,0 +1,103 @@
+# Fairness-Aware Causal Discovery for COMPAS Recidivism Risk Assessment
+## Framework: Anti-Classification (Formal Equality / Disparate Treatment)
+
+You are a **legal compliance expert specializing in anti-discrimination law**. Apply the **anti-classification principle**: protected attributes (race, gender, age, etc.) MUST NOT **directly** cause decisions, as this constitutes illegal disparate treatment under **United States (Broward County, Florida)** law.
+
+**CRITICAL INSTRUCTION - YOU MUST ALLOW PROXY VARIABLES:**
+Proxy variables (like Zipcode, School Quality, Neighborhood, Name) are **NOT** protected attributes themselves under the law. Even though they may correlate with protected attributes, they ARE LEGALLY PERMISSIBLE to use in decision-making as long as they are not protected attributes themselves.
+
+**Your task is to block ONLY direct use of protected attributes, NOT their correlates.**
+
+## Dataset Context
+This dataset contains criminal justice risk assessment data from the Correctional Offender Management Profiling for Alternative Sanctions (COMPAS) system used in Broward County, Florida. The data includes demographic information, criminal history, and risk scores for defendants assessed between 2013-2014. The COMPAS system was designed to predict recidivism risk to inform pretrial detention, bail, and sentencing decisions. The outcome variable of interest is 'two_year_recid' (two-year recidivism).
+The data reflects the state of affairs in **United States (Broward County, Florida)** around **2013 to 2014**.
+
+## Prediction Task
+The goal is to build a model that predicts **whether the individual was arrested for a new crime within two years of the COMPAS assessment (binary: 0=no recidivism, 1=recidivism)** (the `two_year_recid` variable).
+
+## Variables
+- sex: Gender of the individual, encoded as categorical integer (0-based indexing). (datatype: Categorical (Binary/Integer))
+- race_cat: Race category, preprocessed into binary classification: typically 0=non-white, 1=white. (datatype: Categorical (Binary/Integer))
+- age_cat: Age group category derived from age at time of assessment, encoded as categorical integer (0-based indexing: typically representing ranges like '25 or Less', '26-45', 'Greater than 45'). (datatype: Categorical (Ordinal/Integer))
+- c_charge_degree: Degree of the current charge, encoded as categorical integer (0-based indexing of charge severity levels). (datatype: Categorical (Ordinal/Integer))
+- juv_fel_count_cat: Juvenile felony count category, preprocessed into binary: typically 0=no juvenile felonies, 1=one or more juvenile felonies. (datatype: Categorical (Binary/Integer))
+- juv_misd_count_cat: Juvenile misdemeanor count category, preprocessed into categories: typically 0=no juvenile misdemeanors, 1=one juvenile misdemeanor, 2=two or more juvenile misdemeanors. (datatype: Categorical (Ordinal/Integer))
+- juv_other_count_cat: Juvenile other offense count category, preprocessed into categories: typically 0=no juvenile other offenses, 1=one juvenile other offense, 2=two or more juvenile other offenses. (datatype: Categorical (Ordinal/Integer))
+- priors_count_cat: Prior convictions count category, preprocessed into multiple categories representing ranges of prior conviction counts (e.g., 0, 1, 2-3, 4-6, 7-9, 10-15, 15+). (datatype: Categorical (Ordinal/Integer))
+- days_b_screening_arrest_cat: Days between COMPAS screening and arrest category, preprocessed into categories representing different time ranges relative to screening date. (datatype: Categorical (Ordinal/Integer))
+- c_days_from_compas_cat: Days from current charge to COMPAS assessment category, preprocessed into categories representing different time ranges (e.g., 0, 1, 2-7, 8-14, 15-21, 22-28, 29+ days). (datatype: Categorical (Ordinal/Integer))
+- decile_score_cat: Original COMPAS decile risk score category, preprocessed into categories representing score ranges (e.g., 1-2=low risk, 3=low-medium, 4-5=medium, 6-7=medium-high, 8-10=high risk). Note: This should be used with caution due to documented bias in the original COMPAS system. (datatype: Categorical (Ordinal/Integer))
+- two_year_recid: **TARGET OUTCOME** - Two-year recidivism outcome: whether the individual was arrested for a new crime within two years of the COMPAS assessment, binary encoded: 0=no recidivism, 1=recidivism. This is the target outcome variable for the analysis. (datatype: Categorical (Binary/Integer))
+
+---
+
+## Task 1: Identify Legally Protected Attributes
+
+Identify variables that are **legally protected** under **United States (Broward County, Florida)** anti-discrimination law (e.g., race, gender, age, religion, disability).
+
+For each protected attribute:
+- **Variable:** `variable_name`
+- **Legal Basis:** [Cite the legal framework, e.g., "Protected under EU Employment Equality Directive"]
+- **Privileged Group(s):** [Groups that historically receive better treatment]
+- **Unprivileged Group(s):** [Groups that historically face discrimination]
+
+**IMPORTANT:**
+- Variables that are NOT explicitly protected by law (even if they correlate with protected attributes) should NOT be listed here.
+- Example: `Zipcode` is NOT a protected attribute, even though it may correlate with `Race`.
+
+---
+
+## Task 2: Propose Causal Edge Constraints
+
+### 1. WHITELISTED EDGES (Must Exist - Deterministic Causal Links)
+List only deterministic causal relationships based on institutional rules or physical laws.
+
+Format as:
+- Source → Target: Brief justification.
+
+### 2. BLACKLISTED EDGES (Forbidden)
+
+**Type A - Theoretically Impossible:**
+- List edges where the target is a root node: **`race_cat`, `sex`, `age_cat`**. **This includes edges between root nodes themselves** - root nodes cannot cause each other (e.g., if both `race_cat` and `male_cat` are root nodes, blacklist both (`race_cat`, `male_cat`) and (`male_cat`, `race_cat`) in both directions).
+- List edges that violate temporal ordering.
+
+Format as:
+- Source → Target: Explanation (e.g., "Target is root node", "Temporal violation").
+
+**Type B - Direct Discrimination (Anti-Classification Violations):**
+**List ONLY edges from legally protected attributes you identified in Task 1 to the outcome variable (`two_year_recid`).**
+
+**YOU MUST NOT block edges from proxy variables** (Zipcode, School, Neighborhood, etc.) even if they correlate with protected attributes. The law prohibits direct use of protected categories, not their correlates.
+
+**Decision Rule:**
+- If Source is a legally protected attribute (race, gender, age) AND Target is `two_year_recid`: **BLOCK**
+- If Source is a proxy variable (zipcode, school, neighborhood) → Target: **ALLOW** (even if correlated with protected attributes)
+
+Format as:
+- Source → Target: Explanation of legal violation (e.g., "Direct use of protected attribute `age` violates anti-discrimination law").
+
+**Example:**
+- age → y: BLOCK (direct age discrimination in whether the individual was arrested for a new crime within two years of the COMPAS assessment (binary: 0=no recidivism, 1=recidivism))
+- zipcode → y: ALLOW (zipcode is not a protected attribute under the law)
+
+**IMPORTANT:**
+For Type B, only list edges that are otherwise causally plausible (i.e., it is theoretically possible for the source variable to cause the target variable, barring the specific fairness/legal reason). If an edge is theoretically impossible (e.g., target is root node, temporal violation), it belongs in Type A, not Type B.
+
+---
+
+## Machine-Readable Output
+
+# Define whitelisted edges
+whitelisted_edges = [
+    ("source_variable_1", "target_variable_1"),
+]
+
+# Define blacklisted edges (theoretical impossibility)
+blacklisted_edges_type_A = [
+    ("source_variable_A1", "target_variable_A1"),
+]
+
+# Define blacklisted edges (direct discrimination only)
+blacklisted_edges_type_B = [
+    ("protected_attribute_1", "two_year_recid"),
+]

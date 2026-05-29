@@ -1,0 +1,124 @@
+# Fairness-Aware Causal Discovery for Law School Admission and Bar Exam Performance
+## Framework: Meritocratic (Equal Opportunity)
+
+You are an **organizational psychologist and economist specializing in meritocracy and equal opportunity**. Apply the **meritocratic principle**: outcomes should be determined by **legitimate merit** (skills, effort, qualifications acquired through fair processes), NOT by **ascriptive characteristics** (demographics) or **accumulated advantages** (family wealth, inherited status).
+
+**CRITICAL INSTRUCTION - DISTINGUISH MERIT FROM ADVANTAGE:**
+- **Allow** edges through variables representing genuine merit: education (if access was fair), skills, work experience, demonstrated performance
+- **Block** edges from ascriptive characteristics: race, gender, family background
+- **Carefully evaluate** edges from variables that mix merit and advantage: education (merit if earned, advantage if inherited access), job type (merit if based on skills, advantage if based on connections)
+
+**Your task is to allow legitimate merit pathways while blocking ascriptive and inherited advantage pathways.**
+
+## Dataset Context
+This dataset contains law school admission and academic performance records from a Law School Admission Council (LSAC) survey conducted across 163 law schools in the United States in 1991. The data includes demographic information, academic credentials (LSAT scores, undergraduate GPA), law school performance metrics (first-year and cumulative law school GPA, class rankings), and institutional characteristics (school tier). The dataset was originally designed to study factors affecting law school admission and academic success. The outcome variable of interest is 'pass_bar' (bar examination passage).
+
+**Key Context:**
+Consider the historical context of discrimination in legal education and the legal profession in the United States, including barriers faced by women and racial minorities in accessing law school admission and passing bar examinations. Analyze how socioeconomic factors, represented by family income and educational background, may create structural inequalities in legal career outcomes. Evaluate the role of standardized testing (LSAT) and undergraduate academic performance in potentially perpetuating existing educational and socioeconomic disparities. Consider how law school tier and institutional prestige may reflect and reinforce systemic inequalities in the legal profession. Assess the ethical implications of using demographic characteristics and socioeconomic indicators in predicting professional success, particularly given historical exclusion of underrepresented groups from the legal profession.
+
+The data reflects the state of affairs in **United States** around **1991**.
+
+## Prediction Task
+The goal is to build a model that predicts **whether the individual passed the bar examination (binary: 0=failed, 1=passed)** (the `pass_bar` variable).
+
+## Variables
+- race_cat: Race category, encoded as binary: 0=Non-White, 1=White. (datatype: Categorical (Binary/Integer))
+- male_cat: Gender category, encoded as binary: 0=Female, 1=Male. (datatype: Categorical (Binary/Integer))
+- fam_inc_cat: Family income bracket category, ranging from 1 (lowest income) to 5 (highest income), representing socioeconomic background. (datatype: Categorical (Ordinal/Integer))
+- lsat_cat: LSAT (Law School Admission Test) score category, binned into 6 ranges: 0=[11-25], 1=[26-30], 2=[31-35], 3=[36-40], 4=[41-45], 5=[46-48], representing standardized test performance for law school admission. (datatype: Categorical (Ordinal/Integer))
+- ugpa_cat: Undergraduate GPA (Grade Point Average) category, binned into 5 ranges: 0=[1.5-2.5], 1=[2.6-3.0], 2=[3.1-3.3], 3=[3.4-3.7], 4=[3.8-4.0], representing prior academic performance. (datatype: Categorical (Ordinal/Integer))
+- tier_cat: Law school tier category, ranging from 1 to 6, representing the prestige and ranking of the law school attended (1=highest tier, 6=lowest tier). (datatype: Categorical (Ordinal/Integer))
+- fulltime_cat: Study schedule category, encoded as binary: 0=Part-time student, 1=Full-time student, indicating enrollment intensity. (datatype: Categorical (Binary/Integer))
+- zfygpa_cat: Normalized first-year law school GPA category, binned into 6 ranges: 0=[-3.35 to -1.0], 1=[-1.0 to -0.3], 2=[-0.3 to 0.3], 3=[0.3 to 1.0], 4=[1.0 to 2.0], 5=[2.0 to 3.48], representing early law school academic performance. (datatype: Categorical (Ordinal/Integer))
+- zgpa_cat: Normalized cumulative law school GPA category, binned into 6 ranges: 0=[-6.44 to -1.2], 1=[-1.2 to -0.4], 2=[-0.4 to 0.4], 3=[0.4 to 1.2], 4=[1.2 to 2.5], 5=[2.5 to 4.01], representing overall law school academic performance. (datatype: Categorical (Ordinal/Integer))
+- decile1b_cat: First-year class rank decile category, ranging from 1 (top 10%) to 10 (bottom 10%), representing relative academic performance among peers in the first year. (datatype: Categorical (Ordinal/Integer))
+- decile3_cat: Third-year class rank decile category, ranging from 1 (top 10%) to 10 (bottom 10%), representing relative academic performance among peers by graduation. (datatype: Categorical (Ordinal/Integer))
+- pass_bar: **TARGET OUTCOME** - Bar examination outcome: whether the individual passed the bar examination required for legal practice, binary encoded: 0=failed, 1=passed. This is the target outcome variable for the analysis. (datatype: Categorical (Binary/Integer))
+
+---
+
+## Task 1: Classify Variables by Merit Type
+
+Classify each variable into one of four categories:
+
+**Category 1 - Ascriptive (Never Legitimate):**
+Demographic characteristics that individuals do not control and that should never influence outcomes (race, gender, age, family background).
+
+**Category 2 - Pure Merit (Always Legitimate):**
+Variables representing effort, skills, or qualifications genuinely earned through fair processes (test scores from unbiased tests, demonstrated work performance, skills acquired through training).
+
+**Category 3 - Mixed Merit/Advantage (Context-Dependent):**
+Variables that could represent merit but often reflect accumulated advantage (education level, job type, professional credentials). These require careful case-by-case evaluation.
+
+**Category 4 - Structural Advantage (Not Legitimate Merit):**
+Variables representing inherited or accumulated advantages that do not reflect individual effort (parent income, family wealth, neighborhood quality, elite school access).
+
+For each variable:
+- **Variable:** `variable_name`
+- **Category:** [1, 2, 3, or 4]
+- **Rationale:** [Explain classification, especially for Category 3]
+
+---
+
+## Task 2: Propose Causal Edge Constraints
+
+### 1. WHITELISTED EDGES (Must Exist - Deterministic Causal Links)
+List only deterministic causal relationships.
+
+Format as:
+- Source → Target: Brief justification.
+
+### 2. BLACKLISTED EDGES (Forbidden)
+
+**Type A - Theoretically Impossible:**
+- List edges where target is root node: **`race_cat`, `male_cat`, `fam_inc_cat`**. **This includes edges between root nodes themselves** - root nodes cannot cause each other (e.g., if both `race_cat` and `male_cat` are root nodes, blacklist both (`race_cat`, `male_cat`) and (`male_cat`, `race_cat`) in both directions).
+- List edges that violate temporal ordering.
+
+Format as:
+- Source → Target: Explanation.
+
+**Type B - Violations of Meritocratic Fairness:**
+**List edges from Category 1 (Ascriptive) and Category 4 (Structural Advantage) variables to the outcome variable (`pass_bar`).**
+
+**For Category 3 (Mixed Merit/Advantage): Use your judgment:**
+- If the variable primarily reflects inherited advantage in this context → **BLOCK**
+- If it primarily reflects genuine merit → **ALLOW**
+
+**Decision Rule:**
+- Category 1 (Ascriptive) → `pass_bar`: **ALWAYS BLOCK**
+- Category 2 (Pure Merit) → `pass_bar`: **ALWAYS ALLOW**
+- Category 3 (Mixed) → `pass_bar`: **EVALUATE** (default to ALLOW if merit component is substantial)
+- Category 4 (Advantage) → `pass_bar`: **BLOCK**
+
+Format as:
+- Source → Target: Explanation of why this violates meritocratic principles.
+
+**Example:**
+- age → y: BLOCK (ascriptive characteristic)
+- education → y: ALLOW (represents acquired knowledge and skills, even if access was unequal)
+- parent_income → y: BLOCK (inherited advantage, not individual merit)
+- job_skills → y: ALLOW (demonstrates merit)
+- elite_school_attended → y: BLOCK (primarily signals family advantage, not individual merit)
+
+**IMPORTANT:**
+For Type B, only list edges that are otherwise causally plausible (i.e., it is theoretically possible for the source variable to cause the target variable, barring the specific meritocratic fairness reason). If an edge is theoretically impossible (e.g., target is root node, temporal violation), it belongs in Type A, not Type B.
+
+---
+
+## Machine-Readable Output
+
+# Define whitelisted edges
+whitelisted_edges = [
+    ("source_variable_1", "target_variable_1"),
+]
+
+# Define blacklisted edges (theoretical impossibility)
+blacklisted_edges_type_A = [
+    ("source_variable_A1", "target_variable_A1"),
+]
+
+# Define blacklisted edges (ascriptive and advantage-based)
+blacklisted_edges_type_B = [
+    ("ascriptive_variable_1", "pass_bar"),
+    ("advantage_variable_1", "pass_bar"),
+]

@@ -1,0 +1,135 @@
+{
+  "dataset_name": "law",
+  "description": "Law School Dataset Configuration for Fair Causal Discovery",
+  
+  "data_settings": {
+    "data_loader_module": "src.faircausal.data.data_loader_law",
+    "data_path": "data/data_law_school/law_school_clean.csv",
+    "preprocessed_export_path": "data/data_law_school/law_school_preprocessed.csv"
+  },
+  
+  "fairness_settings": {
+    "protected_attrs": ["race_cat", "male_cat"],
+    "target": "pass_bar",
+    "disadvantage_group": {
+      "race_cat": 0,
+      "male_cat": 0
+    }
+  },
+  
+  "variable_settings": {
+    "var_types": {
+      "decile1b_cat": "categorical",
+      "decile3_cat": "categorical",
+      "lsat_cat": "categorical",
+      "ugpa_cat": "categorical",
+      "zfygpa_cat": "categorical",
+      "zgpa_cat": "categorical",
+      "race_cat": "binary",
+      "male_cat": "binary",
+      "fulltime_cat": "binary",
+      "fam_inc_cat": "categorical",
+      "tier_cat": "categorical",
+      "pass_bar": "binary"
+    }
+  },
+  
+  "constraint_settings": {
+    "whitelist_edges": [
+        ["zfygpa_cat", "zgpa_cat"],
+        ["zgpa_cat", "decile3_cat"]
+    ],
+    
+    "blacklist_edges": {
+      "demographic_constraints": [
+        ["lsat_cat", "race_cat"],
+        ["ugpa_cat", "race_cat"],
+        ["tier_cat", "race_cat"],
+        ["zfygpa_cat", "race_cat"],
+        ["zgpa_cat", "race_cat"],
+        ["decile1b_cat", "race_cat"],
+        ["decile3_cat", "race_cat"],
+        ["fulltime_cat", "race_cat"],
+        ["pass_bar", "race_cat"],
+        ["fam_inc_cat", "race_cat"],
+        ["male_cat", "race_cat"],
+        ["lsat_cat", "male_cat"],
+        ["ugpa_cat", "male_cat"],
+        ["tier_cat", "male_cat"],
+        ["zfygpa_cat", "male_cat"],
+        ["zgpa_cat", "male_cat"],
+        ["decile1b_cat", "male_cat"],
+        ["decile3_cat", "male_cat"],
+        ["fulltime_cat", "male_cat"],
+        ["pass_bar", "male_cat"],
+        ["race_cat", "male_cat"],
+        ["fam_inc_cat", "male_cat"],
+        ["lsat_cat", "fam_inc_cat"],
+        ["ugpa_cat", "fam_inc_cat"],
+        ["tier_cat", "fam_inc_cat"],
+        ["zfygpa_cat", "fam_inc_cat"],
+        ["zgpa_cat", "fam_inc_cat"],
+        ["decile1b_cat", "fam_inc_cat"],
+        ["decile3_cat", "fam_inc_cat"],
+        ["fulltime_cat", "fam_inc_cat"],
+        ["pass_bar", "fam_inc_cat"],
+
+        ["tier_cat", "lsat_cat"],
+        ["tier_cat", "ugpa_cat"],
+        ["zfygpa_cat", "tier_cat"],
+        ["pass_bar", "zgpa_cat"],
+        ["pass_bar", "decile3_cat"],
+        ["pass_bar", "zfygpa_cat"],
+        ["pass_bar", "decile1b_cat"],
+        ["pass_bar", "fulltime_cat"],
+        ["pass_bar", "tier_cat"],
+        ["pass_bar", "ugpa_cat"],
+        ["pass_bar", "lsat_cat"]
+      ],
+      
+      "fairness_constraints": [
+        ["race_cat", "pass_bar"],
+        ["male_cat", "pass_bar"],
+        ["fam_inc_cat", "pass_bar"],
+        ["tier_cat", "pass_bar"],
+        ["lsat_cat", "pass_bar"],
+        ["ugpa_cat", "pass_bar"]
+      ]
+    }
+  },
+  
+  "experiment_settings": {
+    "max_dags": 2000,
+    "save_models": false,
+    "generate_synthetic": true,
+    "synthetic_variants": {
+      "double": false,
+      "balanced": false,
+      "protected": false
+    }
+  },
+
+  "soft_fairness_settings": {
+    "lambda": 0.2,
+    "lambda_strategy": "normative_anchoring",
+    "lambda_grid": [0.5, 1.0, 2.0, 5.0],
+    "epsilon": 0.05,
+    "fairness_metric": "TE",
+    "path_effect_method": "distance",
+    "tau_c": 5,
+    "beta": 0.0,
+    "max_stage2_dags": 50
+  },
+
+  "counterfactual_settings": {
+    "sample_percentage": 0.8,
+    "min_samples": 10,
+    "random_state": 42,
+    "structure_discovery_ratio": 0.7,
+    "enable_sample_splitting": true,
+    "cutoff_threshold": 0.5,
+    "calculate_pse": true,
+    "pse_sample_size": 500,
+    "max_paths": 3
+  }
+}

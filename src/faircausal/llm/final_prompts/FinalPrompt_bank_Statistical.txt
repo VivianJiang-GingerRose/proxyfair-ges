@@ -1,0 +1,70 @@
+# Causal Discovery Analysis for Bank Marketing
+
+You are a **statistical methodologist and causal inference expert**. Your task is to identify causal relationships based purely on statistical validity and theoretical plausibility. **Do NOT consider fairness, ethics, or discrimination concerns** - focus only on whether causal relationships are statistically sound and theoretically possible.
+
+## Dataset Context
+This dataset is a preprocessed version of the Portuguese bank marketing dataset, originally containing information about direct marketing campaigns (phone calls) conducted by a Portuguese banking institution from May 2008 to November 2010. The outcome variable of interest is 'y' (term deposit subscription).
+The data reflects the state of affairs in **Portugal** around **May 2008 to November 2010**.
+
+## Prediction Task
+The goal is to build a model that predicts **whether the client subscribed to a term deposit (binary: yes/no)** (the `y` variable).
+
+## Variables
+- age: Age of the client, converted to categorical encoding (0-based indexing of age values). (datatype: Categorical (Ordinal/Integer))
+- job: Type of job, preprocessed into 3 categories: 0=blue-collar, 1=management-service (admin/management/services), 2=other (all remaining job types). (datatype: Categorical (Nominal/Integer))
+- marital: Marital status, , preprocessed into binary: 0=married, 1=non-married (divorced, single, or unknown). converted to categorical encoding (0-based indexing: divorced, married, single, unknown). (datatype: Categorical (Binary/Integer))
+- education: Education level, converted to categorical encoding (0-based indexing of education levels). (datatype: Categorical (Ordinal/Integer))
+- default: Has credit in default, binary encoded: 0=no, 1=yes. (datatype: Categorical (Binary/Integer))
+- balance: Average yearly balance, preprocessed into binary: 0=zero balance, 1=positive balance. (datatype: Categorical (Binary/Integer))
+- housing: Has housing loan, binary encoded: 0=no, 1=yes. (datatype: Categorical (Binary/Integer))
+- loan: Has personal loan, binary encoded: 0=no, 1=yes. (datatype: Categorical (Binary/Integer))
+- contact: Contact communication type, converted to categorical encoding (0-based indexing: cellular, telephone). (datatype: Categorical (Nominal/Integer))
+- day: Last contact day of the month, preprocessed into binary: 0=day≤15, 1=day>15. (datatype: Categorical (Binary/Integer))
+- month: Last contact month of year, converted to categorical encoding (0-based indexing of months). (datatype: Categorical (Nominal/Integer))
+- duration: Last contact duration in seconds, preprocessed into 3 categories: 0=≤120 seconds, 1=121-600 seconds, 2=>600 seconds. Note: This attribute should be used with caution for realistic prediction as duration is not known before a call. (datatype: Categorical (Ordinal/Integer))
+- campaign: Number of contacts performed during this campaign, preprocessed into 3 categories: 0=≤1 contact, 1=2-5 contacts, 2=>5 contacts. (datatype: Categorical (Ordinal/Integer))
+- pdays: Number of days since last contact from previous campaign, preprocessed into 3 categories: 0=≤30 days, 1=31-180 days, 2=>180 days or never contacted (-1 in original data). (datatype: Categorical (Ordinal/Integer))
+- previous: Number of contacts performed before this campaign, preprocessed into 3 categories: 0=no previous contacts, 1=1-5 previous contacts, 2=>5 previous contacts. (datatype: Categorical (Ordinal/Integer))
+- poutcome: Outcome of the previous marketing campaign, converted to categorical encoding (0-based indexing: failure, nonexistent, success). (datatype: Categorical (Nominal/Integer))
+- y: **TARGET OUTCOME** - Has the client subscribed a term deposit, binary encoded: 0=no, 1=yes. This is the target outcome variable for the analysis. (datatype: Categorical (Binary/Integer))
+
+---
+
+## Task: Propose Causal Edge Constraints
+
+Provide two types of causal edge constraints based purely on statistical and theoretical considerations.
+
+### 1. WHITELISTED EDGES (Must Exist - Deterministic Causal Links)
+List only those directed edges (A → B) for which there is a **deterministic, universally-agreed causal relationship** based on physical laws, institutional rules, or mathematical definitions.
+
+Format as:
+- Source → Target: Brief justification referencing the deterministic rule or mechanism.
+
+### 2. BLACKLISTED EDGES (Forbidden - Theoretical Impossibility)
+
+**Type A - Theoretically Impossible:**
+- List all directed edges where the **target is a root node**. For this dataset, the root nodes are **`age`**. These are fundamental demographic characteristics that are largely immutable or established early in life and influence subsequent financial behavior and opportunities. No other variable can cause them. **This includes edges between root nodes themselves** - root nodes cannot cause each other (e.g., if both `race_cat` and `male_cat` are root nodes, blacklist both (`race_cat`, `male_cat`) and (`male_cat`, `race_cat`) in both directions).
+- Additionally, list any edges that violate temporal ordering or are logically impossible.
+
+Format as:
+- Source → Target: Explanation of why this is theoretically impossible (e.g., "Target is a root node", "Violates temporal order").
+
+**IMPORTANT:** Do NOT include any edges in Type A that are blocked for fairness reasons. Only include edges that are statistically or theoretically impossible.
+
+---
+
+## Machine-Readable Output
+At the end of your response, present the edges in this format:
+
+# Define whitelisted edges
+whitelisted_edges = [
+    ("source_variable_1", "target_variable_1"),
+]
+
+# Define blacklisted edges (theoretical impossibility only)
+blacklisted_edges_type_A = [
+    ("source_variable_A1", "target_variable_A1"),
+]
+
+# Statistical framework has no fairness constraints
+blacklisted_edges_type_B = []

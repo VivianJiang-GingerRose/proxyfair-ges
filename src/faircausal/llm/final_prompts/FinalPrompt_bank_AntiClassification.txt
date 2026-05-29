@@ -1,0 +1,108 @@
+# Fairness-Aware Causal Discovery for Bank Marketing
+## Framework: Anti-Classification (Formal Equality / Disparate Treatment)
+
+You are a **legal compliance expert specializing in anti-discrimination law**. Apply the **anti-classification principle**: protected attributes (race, gender, age, etc.) MUST NOT **directly** cause decisions, as this constitutes illegal disparate treatment under **Portugal** law.
+
+**CRITICAL INSTRUCTION - YOU MUST ALLOW PROXY VARIABLES:**
+Proxy variables (like Zipcode, School Quality, Neighborhood, Name) are **NOT** protected attributes themselves under the law. Even though they may correlate with protected attributes, they ARE LEGALLY PERMISSIBLE to use in decision-making as long as they are not protected attributes themselves.
+
+**Your task is to block ONLY direct use of protected attributes, NOT their correlates.**
+
+## Dataset Context
+This dataset is a preprocessed version of the Portuguese bank marketing dataset, originally containing information about direct marketing campaigns (phone calls) conducted by a Portuguese banking institution from May 2008 to November 2010. The outcome variable of interest is 'y' (term deposit subscription).
+The data reflects the state of affairs in **Portugal** around **May 2008 to November 2010**.
+
+## Prediction Task
+The goal is to build a model that predicts **whether the client subscribed to a term deposit (binary: yes/no)** (the `y` variable).
+
+## Variables
+- age: Age of the client, converted to categorical encoding (0-based indexing of age values). (datatype: Categorical (Ordinal/Integer))
+- job: Type of job, preprocessed into 3 categories: 0=blue-collar, 1=management-service (admin/management/services), 2=other (all remaining job types). (datatype: Categorical (Nominal/Integer))
+- marital: Marital status, , preprocessed into binary: 0=married, 1=non-married (divorced, single, or unknown). converted to categorical encoding (0-based indexing: divorced, married, single, unknown). (datatype: Categorical (Binary/Integer))
+- education: Education level, converted to categorical encoding (0-based indexing of education levels). (datatype: Categorical (Ordinal/Integer))
+- default: Has credit in default, binary encoded: 0=no, 1=yes. (datatype: Categorical (Binary/Integer))
+- balance: Average yearly balance, preprocessed into binary: 0=zero balance, 1=positive balance. (datatype: Categorical (Binary/Integer))
+- housing: Has housing loan, binary encoded: 0=no, 1=yes. (datatype: Categorical (Binary/Integer))
+- loan: Has personal loan, binary encoded: 0=no, 1=yes. (datatype: Categorical (Binary/Integer))
+- contact: Contact communication type, converted to categorical encoding (0-based indexing: cellular, telephone). (datatype: Categorical (Nominal/Integer))
+- day: Last contact day of the month, preprocessed into binary: 0=day≤15, 1=day>15. (datatype: Categorical (Binary/Integer))
+- month: Last contact month of year, converted to categorical encoding (0-based indexing of months). (datatype: Categorical (Nominal/Integer))
+- duration: Last contact duration in seconds, preprocessed into 3 categories: 0=≤120 seconds, 1=121-600 seconds, 2=>600 seconds. Note: This attribute should be used with caution for realistic prediction as duration is not known before a call. (datatype: Categorical (Ordinal/Integer))
+- campaign: Number of contacts performed during this campaign, preprocessed into 3 categories: 0=≤1 contact, 1=2-5 contacts, 2=>5 contacts. (datatype: Categorical (Ordinal/Integer))
+- pdays: Number of days since last contact from previous campaign, preprocessed into 3 categories: 0=≤30 days, 1=31-180 days, 2=>180 days or never contacted (-1 in original data). (datatype: Categorical (Ordinal/Integer))
+- previous: Number of contacts performed before this campaign, preprocessed into 3 categories: 0=no previous contacts, 1=1-5 previous contacts, 2=>5 previous contacts. (datatype: Categorical (Ordinal/Integer))
+- poutcome: Outcome of the previous marketing campaign, converted to categorical encoding (0-based indexing: failure, nonexistent, success). (datatype: Categorical (Nominal/Integer))
+- y: **TARGET OUTCOME** - Has the client subscribed a term deposit, binary encoded: 0=no, 1=yes. This is the target outcome variable for the analysis. (datatype: Categorical (Binary/Integer))
+
+---
+
+## Task 1: Identify Legally Protected Attributes
+
+Identify variables that are **legally protected** under **Portugal** anti-discrimination law (e.g., race, gender, age, religion, disability).
+
+For each protected attribute:
+- **Variable:** `variable_name`
+- **Legal Basis:** [Cite the legal framework, e.g., "Protected under EU Employment Equality Directive"]
+- **Privileged Group(s):** [Groups that historically receive better treatment]
+- **Unprivileged Group(s):** [Groups that historically face discrimination]
+
+**IMPORTANT:**
+- Variables that are NOT explicitly protected by law (even if they correlate with protected attributes) should NOT be listed here.
+- Example: `Zipcode` is NOT a protected attribute, even though it may correlate with `Race`.
+
+---
+
+## Task 2: Propose Causal Edge Constraints
+
+### 1. WHITELISTED EDGES (Must Exist - Deterministic Causal Links)
+List only deterministic causal relationships based on institutional rules or physical laws.
+
+Format as:
+- Source → Target: Brief justification.
+
+### 2. BLACKLISTED EDGES (Forbidden)
+
+**Type A - Theoretically Impossible:**
+- List edges where the target is a root node: **`age`**. **This includes edges between root nodes themselves** - root nodes cannot cause each other (e.g., if both `race_cat` and `male_cat` are root nodes, blacklist both (`race_cat`, `male_cat`) and (`male_cat`, `race_cat`) in both directions).
+- List edges that violate temporal ordering.
+
+Format as:
+- Source → Target: Explanation (e.g., "Target is root node", "Temporal violation").
+
+**Type B - Direct Discrimination (Anti-Classification Violations):**
+**List ONLY edges from legally protected attributes you identified in Task 1 to the outcome variable (`y`).**
+
+**YOU MUST NOT block edges from proxy variables** (Zipcode, School, Neighborhood, etc.) even if they correlate with protected attributes. The law prohibits direct use of protected categories, not their correlates.
+
+**Decision Rule:**
+- If Source is a legally protected attribute (race, gender, age) AND Target is `y`: **BLOCK**
+- If Source is a proxy variable (zipcode, school, neighborhood) → Target: **ALLOW** (even if correlated with protected attributes)
+
+Format as:
+- Source → Target: Explanation of legal violation (e.g., "Direct use of protected attribute `age` violates anti-discrimination law").
+
+**Example:**
+- age → y: BLOCK (direct age discrimination in whether the client subscribed to a term deposit (binary: yes/no))
+- zipcode → y: ALLOW (zipcode is not a protected attribute under the law)
+
+**IMPORTANT:**
+For Type B, only list edges that are otherwise causally plausible (i.e., it is theoretically possible for the source variable to cause the target variable, barring the specific fairness/legal reason). If an edge is theoretically impossible (e.g., target is root node, temporal violation), it belongs in Type A, not Type B.
+
+---
+
+## Machine-Readable Output
+
+# Define whitelisted edges
+whitelisted_edges = [
+    ("source_variable_1", "target_variable_1"),
+]
+
+# Define blacklisted edges (theoretical impossibility)
+blacklisted_edges_type_A = [
+    ("source_variable_A1", "target_variable_A1"),
+]
+
+# Define blacklisted edges (direct discrimination only)
+blacklisted_edges_type_B = [
+    ("protected_attribute_1", "y"),
+]

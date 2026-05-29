@@ -1,0 +1,138 @@
+{
+  "dataset_name": "dutch",
+  "description": "Dutch Census Dataset Configuration for Fair Causal Discovery",
+  
+  "data_settings": {
+    "data_loader_module": "src.faircausal.data.data_loader_dutch",
+    "data_path": "data/data_dutch_census/dutch.csv",
+    "preprocessed_export_path": "data/data_dutch_census/dutch_preprocessed.csv"
+  },
+  
+  "fairness_settings": {
+    "protected_attrs": ["sex_enc", "country_birth", "citizenship"],
+    "target": "occupation",
+    "disadvantage_group": {
+      "sex_enc": 1,
+      "country_birth": 2,
+      "citizenship": 2
+    }
+  },
+  
+  "variable_settings": {
+    "var_types": {
+      "age": "categorical",
+      "household_position": "categorical",
+      "household_size": "categorical",
+      "prev_residence_place": "categorical",
+      "citizenship": "categorical",
+      "country_birth": "categorical",
+      "edu_level": "categorical",
+      "economic_status": "categorical",
+      "cur_eco_activity": "categorical",
+      "marital_status": "categorical",
+      "sex_enc": "categorical",
+      "occupation": "categorical"
+    }
+  },
+  
+  "constraint_settings": {
+    "whitelist_edges": [
+        ["age", "edu_level"]
+    ],
+    
+    "blacklist_edges": {
+      "demographic_constraints": [
+        ["household_position", "age"],
+        ["household_size", "age"],
+        ["prev_residence_place", "age"],
+        ["citizenship", "age"],
+        ["edu_level", "age"],
+        ["economic_status", "age"],
+        ["cur_eco_activity", "age"],
+        ["marital_status", "age"],
+        ["occupation", "age"],
+        ["household_position", "sex_enc"],
+        ["household_size", "sex_enc"],
+        ["prev_residence_place", "sex_enc"],
+        ["citizenship", "sex_enc"],
+        ["edu_level", "sex_enc"],
+        ["economic_status", "sex_enc"],
+        ["cur_eco_activity", "sex_enc"],
+        ["marital_status", "sex_enc"],
+        ["occupation", "sex_enc"],
+        ["household_position", "country_birth"],
+        ["household_size", "country_birth"],
+        ["prev_residence_place", "country_birth"],
+        ["citizenship", "country_birth"],
+        ["edu_level", "country_birth"],
+        ["economic_status", "country_birth"],
+        ["cur_eco_activity", "country_birth"],
+        ["marital_status", "country_birth"],
+        ["occupation", "country_birth"],
+        ["country_birth", "sex_enc"],
+        ["country_birth", "age"],
+        ["household_position", "citizenship"],
+        ["household_size", "citizenship"],
+        ["prev_residence_place", "citizenship"],
+        ["edu_level", "citizenship"],
+        ["economic_status", "citizenship"],
+        ["cur_eco_activity", "citizenship"],
+        ["marital_status", "citizenship"],
+        ["occupation", "citizenship"],
+        ["age", "citizenship"],
+        ["sex_enc", "citizenship"],
+
+        ["sex_enc", "country_birth"],
+        ["sex_enc", "citizenship"],
+        ["country_birth", "sex_enc"],
+        ["citizenship", "sex_enc"],
+        ["citizenship", "country_birth"],
+        ["age", "sex_enc"],
+        ["sex_enc", "age"],
+        ["age", "country_birth"]
+    
+      ],
+      
+      "fairness_constraints": [
+        ["sex_enc", "occupation"],
+        ["country_birth", "occupation"],
+        ["citizenship", "occupation"]
+      ]
+    }
+  },
+  
+  "experiment_settings": {
+    "max_dags": 100,
+    "save_models": false,
+    "generate_synthetic": true,
+    "synthetic_variants": {
+      "double": false,
+      "balanced": false,
+      "protected": false
+    }
+  },
+
+  "soft_fairness_settings": {
+    "lambda": 0.1,
+    "lambda_strategy": "normative_anchoring",
+    "lambda_grid": [0.5, 1.0, 2.0, 5.0],
+    "epsilon": 0.05,
+    "fairness_metric": "TE",
+    "path_effect_method": "distance",
+    "tau_c": 5,
+    "beta": 0.0,
+    "max_stage2_dags": 50
+  },
+
+  "counterfactual_settings": {
+    "sample_percentage": 1.2,
+    "min_samples": 10,
+    "random_state": 42,
+    "structure_discovery_ratio": 0.9,
+    "enable_sample_splitting": true,
+    "cutoff_threshold": 0.5,
+    "calculate_pse": true,
+    "pse_sample_size": 300,
+    "max_paths": 3
+  }
+}

@@ -1,0 +1,43 @@
+\begin{table*}[t]
+\centering
+\caption{Multi-attribute synthetic displacement experiment, $N=5{,}000$, over 50 seeds. Mean $\pm$ SD reported for path-specific effects.}
+\label{tab:synthetic_displacement}
+\renewcommand{\arraystretch}{1.15}
+\small
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}l c c c c c@{}}
+\toprule
+\textbf{Condition}
+  & \textbf{$|\mathrm{PSE}_{S_1}|$} $\downarrow$
+  & \textbf{$|\mathrm{PSE}_{S_2}|$} $\downarrow$
+  & \textbf{$|\mathrm{PSE}_{\mathrm{total}}|$} $\downarrow$
+  & \textbf{$\Pr[Z{\to}Y]$} $\uparrow$
+  & \textbf{Modal graph (freq.)} \\
+\midrule
+Baseline
+  & $0.300{\pm}0.007$
+  & $0.300{\pm}0.006$
+  & $0.600{\pm}0.007$
+  & $1.00$
+  & $C{\to}S1,\, C{\to}S2,\, S1{\to}V1,\, S2{\to}V2,\, V1{\to}Y,\, V2{\to}Y,\, Z{\to}Y$\;\;(100\%) \\
+Penalize $\{S_1\}$
+  & $0.000{\pm}0.000$
+  & $0.367{\pm}0.008$
+  & $0.367{\pm}0.008$
+  & $1.00$
+  & $C{\to}S1,\, C{\to}S2,\, S1{\to}V1,\, S2{\to}V2,\, V2{\to}Y,\, Z{\to}Y$\;\;(100\%) \\
+Penalize $\{S_2\}$
+  & $0.367{\pm}0.009$
+  & $0.000{\pm}0.000$
+  & $0.367{\pm}0.009$
+  & $1.00$
+  & $C{\to}S1,\, C{\to}S2,\, S1{\to}V1,\, S2{\to}V2,\, V1{\to}Y,\, Z{\to}Y$\;\;(100\%) \\
+Penalize $\{S_1,S_2\}$
+  & $0.000{\pm}0.000$
+  & $0.000{\pm}0.000$
+  & $0.000{\pm}0.000$
+  & $1.00$
+  & $C{\to}S1,\, C{\to}S2,\, S1{\to}V1,\, S2{\to}V2,\, Z{\to}Y$\;\;(100\%) \\
+\bottomrule
+\end{tabular}
+\end{table*}

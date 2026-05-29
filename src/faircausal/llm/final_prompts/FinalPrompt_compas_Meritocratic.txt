@@ -1,0 +1,124 @@
+# Fairness-Aware Causal Discovery for COMPAS Recidivism Risk Assessment
+## Framework: Meritocratic (Equal Opportunity)
+
+You are an **organizational psychologist and economist specializing in meritocracy and equal opportunity**. Apply the **meritocratic principle**: outcomes should be determined by **legitimate merit** (skills, effort, qualifications acquired through fair processes), NOT by **ascriptive characteristics** (demographics) or **accumulated advantages** (family wealth, inherited status).
+
+**CRITICAL INSTRUCTION - DISTINGUISH MERIT FROM ADVANTAGE:**
+- **Allow** edges through variables representing genuine merit: education (if access was fair), skills, work experience, demonstrated performance
+- **Block** edges from ascriptive characteristics: race, gender, family background
+- **Carefully evaluate** edges from variables that mix merit and advantage: education (merit if earned, advantage if inherited access), job type (merit if based on skills, advantage if based on connections)
+
+**Your task is to allow legitimate merit pathways while blocking ascriptive and inherited advantage pathways.**
+
+## Dataset Context
+This dataset contains criminal justice risk assessment data from the Correctional Offender Management Profiling for Alternative Sanctions (COMPAS) system used in Broward County, Florida. The data includes demographic information, criminal history, and risk scores for defendants assessed between 2013-2014. The COMPAS system was designed to predict recidivism risk to inform pretrial detention, bail, and sentencing decisions. The outcome variable of interest is 'two_year_recid' (two-year recidivism).
+
+**Key Context:**
+Consider the long history of racial discrimination in the U.S. criminal justice system, including disparities in policing, arrest rates, prosecution, and sentencing that disproportionately affect Black and Hispanic communities. Analyze how algorithmic risk assessment tools like COMPAS may perpetuate or amplify existing biases in the system. Evaluate the ethical implications of using demographic characteristics and criminal history patterns that may reflect systemic inequalities rather than individual risk. Consider the constitutional requirements of equal protection under the law and due process rights in pretrial and sentencing contexts.
+
+The data reflects the state of affairs in **United States (Broward County, Florida)** around **2013 to 2014**.
+
+## Prediction Task
+The goal is to build a model that predicts **whether the individual was arrested for a new crime within two years of the COMPAS assessment (binary: 0=no recidivism, 1=recidivism)** (the `two_year_recid` variable).
+
+## Variables
+- sex: Gender of the individual, encoded as categorical integer (0-based indexing). (datatype: Categorical (Binary/Integer))
+- race_cat: Race category, preprocessed into binary classification: typically 0=non-white, 1=white. (datatype: Categorical (Binary/Integer))
+- age_cat: Age group category derived from age at time of assessment, encoded as categorical integer (0-based indexing: typically representing ranges like '25 or Less', '26-45', 'Greater than 45'). (datatype: Categorical (Ordinal/Integer))
+- c_charge_degree: Degree of the current charge, encoded as categorical integer (0-based indexing of charge severity levels). (datatype: Categorical (Ordinal/Integer))
+- juv_fel_count_cat: Juvenile felony count category, preprocessed into binary: typically 0=no juvenile felonies, 1=one or more juvenile felonies. (datatype: Categorical (Binary/Integer))
+- juv_misd_count_cat: Juvenile misdemeanor count category, preprocessed into categories: typically 0=no juvenile misdemeanors, 1=one juvenile misdemeanor, 2=two or more juvenile misdemeanors. (datatype: Categorical (Ordinal/Integer))
+- juv_other_count_cat: Juvenile other offense count category, preprocessed into categories: typically 0=no juvenile other offenses, 1=one juvenile other offense, 2=two or more juvenile other offenses. (datatype: Categorical (Ordinal/Integer))
+- priors_count_cat: Prior convictions count category, preprocessed into multiple categories representing ranges of prior conviction counts (e.g., 0, 1, 2-3, 4-6, 7-9, 10-15, 15+). (datatype: Categorical (Ordinal/Integer))
+- days_b_screening_arrest_cat: Days between COMPAS screening and arrest category, preprocessed into categories representing different time ranges relative to screening date. (datatype: Categorical (Ordinal/Integer))
+- c_days_from_compas_cat: Days from current charge to COMPAS assessment category, preprocessed into categories representing different time ranges (e.g., 0, 1, 2-7, 8-14, 15-21, 22-28, 29+ days). (datatype: Categorical (Ordinal/Integer))
+- decile_score_cat: Original COMPAS decile risk score category, preprocessed into categories representing score ranges (e.g., 1-2=low risk, 3=low-medium, 4-5=medium, 6-7=medium-high, 8-10=high risk). Note: This should be used with caution due to documented bias in the original COMPAS system. (datatype: Categorical (Ordinal/Integer))
+- two_year_recid: **TARGET OUTCOME** - Two-year recidivism outcome: whether the individual was arrested for a new crime within two years of the COMPAS assessment, binary encoded: 0=no recidivism, 1=recidivism. This is the target outcome variable for the analysis. (datatype: Categorical (Binary/Integer))
+
+---
+
+## Task 1: Classify Variables by Merit Type
+
+Classify each variable into one of four categories:
+
+**Category 1 - Ascriptive (Never Legitimate):**
+Demographic characteristics that individuals do not control and that should never influence outcomes (race, gender, age, family background).
+
+**Category 2 - Pure Merit (Always Legitimate):**
+Variables representing effort, skills, or qualifications genuinely earned through fair processes (test scores from unbiased tests, demonstrated work performance, skills acquired through training).
+
+**Category 3 - Mixed Merit/Advantage (Context-Dependent):**
+Variables that could represent merit but often reflect accumulated advantage (education level, job type, professional credentials). These require careful case-by-case evaluation.
+
+**Category 4 - Structural Advantage (Not Legitimate Merit):**
+Variables representing inherited or accumulated advantages that do not reflect individual effort (parent income, family wealth, neighborhood quality, elite school access).
+
+For each variable:
+- **Variable:** `variable_name`
+- **Category:** [1, 2, 3, or 4]
+- **Rationale:** [Explain classification, especially for Category 3]
+
+---
+
+## Task 2: Propose Causal Edge Constraints
+
+### 1. WHITELISTED EDGES (Must Exist - Deterministic Causal Links)
+List only deterministic causal relationships.
+
+Format as:
+- Source → Target: Brief justification.
+
+### 2. BLACKLISTED EDGES (Forbidden)
+
+**Type A - Theoretically Impossible:**
+- List edges where target is root node: **`race_cat`, `sex`, `age_cat`**. **This includes edges between root nodes themselves** - root nodes cannot cause each other (e.g., if both `race_cat` and `male_cat` are root nodes, blacklist both (`race_cat`, `male_cat`) and (`male_cat`, `race_cat`) in both directions).
+- List edges that violate temporal ordering.
+
+Format as:
+- Source → Target: Explanation.
+
+**Type B - Violations of Meritocratic Fairness:**
+**List edges from Category 1 (Ascriptive) and Category 4 (Structural Advantage) variables to the outcome variable (`two_year_recid`).**
+
+**For Category 3 (Mixed Merit/Advantage): Use your judgment:**
+- If the variable primarily reflects inherited advantage in this context → **BLOCK**
+- If it primarily reflects genuine merit → **ALLOW**
+
+**Decision Rule:**
+- Category 1 (Ascriptive) → `two_year_recid`: **ALWAYS BLOCK**
+- Category 2 (Pure Merit) → `two_year_recid`: **ALWAYS ALLOW**
+- Category 3 (Mixed) → `two_year_recid`: **EVALUATE** (default to ALLOW if merit component is substantial)
+- Category 4 (Advantage) → `two_year_recid`: **BLOCK**
+
+Format as:
+- Source → Target: Explanation of why this violates meritocratic principles.
+
+**Example:**
+- age → y: BLOCK (ascriptive characteristic)
+- education → y: ALLOW (represents acquired knowledge and skills, even if access was unequal)
+- parent_income → y: BLOCK (inherited advantage, not individual merit)
+- job_skills → y: ALLOW (demonstrates merit)
+- elite_school_attended → y: BLOCK (primarily signals family advantage, not individual merit)
+
+**IMPORTANT:**
+For Type B, only list edges that are otherwise causally plausible (i.e., it is theoretically possible for the source variable to cause the target variable, barring the specific meritocratic fairness reason). If an edge is theoretically impossible (e.g., target is root node, temporal violation), it belongs in Type A, not Type B.
+
+---
+
+## Machine-Readable Output
+
+# Define whitelisted edges
+whitelisted_edges = [
+    ("source_variable_1", "target_variable_1"),
+]
+
+# Define blacklisted edges (theoretical impossibility)
+blacklisted_edges_type_A = [
+    ("source_variable_A1", "target_variable_A1"),
+]
+
+# Define blacklisted edges (ascriptive and advantage-based)
+blacklisted_edges_type_B = [
+    ("ascriptive_variable_1", "two_year_recid"),
+    ("advantage_variable_1", "two_year_recid"),
+]

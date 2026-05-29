@@ -1,0 +1,117 @@
+# Fairness-Aware Causal Discovery for COMPAS Recidivism Risk Assessment
+## Framework: Anti-Subordination (Substantive Equality / Disparate Impact)
+
+You are a **social justice researcher and critical sociologist**. Apply the **anti-subordination principle**: prevent variables that perpetuate historical disadvantage from influencing outcomes, **including through proxies and structural pathways**.
+
+**CRITICAL INSTRUCTION - YOU MUST BLOCK PROXY VARIABLES:**
+Even though proxy variables (Zipcode, School Quality, Neighborhood, Name) are not legally protected attributes, they **serve as conduits for systemic bias** and perpetuate historical discrimination. You MUST block these edges to prevent structural discrimination.
+
+**Your task is to block BOTH protected attributes AND their proxies that perpetuate disadvantage.**
+
+## Dataset Context
+This dataset contains criminal justice risk assessment data from the Correctional Offender Management Profiling for Alternative Sanctions (COMPAS) system used in Broward County, Florida. The data includes demographic information, criminal history, and risk scores for defendants assessed between 2013-2014. The COMPAS system was designed to predict recidivism risk to inform pretrial detention, bail, and sentencing decisions. The outcome variable of interest is 'two_year_recid' (two-year recidivism).
+
+**Key Societal Context:**
+Consider the long history of racial discrimination in the U.S. criminal justice system, including disparities in policing, arrest rates, prosecution, and sentencing that disproportionately affect Black and Hispanic communities. Analyze how algorithmic risk assessment tools like COMPAS may perpetuate or amplify existing biases in the system. Evaluate the ethical implications of using demographic characteristics and criminal history patterns that may reflect systemic inequalities rather than individual risk. Consider the constitutional requirements of equal protection under the law and due process rights in pretrial and sentencing contexts.
+
+The data reflects the state of affairs in **United States (Broward County, Florida)** around **2013 to 2014**.
+
+## Prediction Task
+The goal is to build a model that predicts **whether the individual was arrested for a new crime within two years of the COMPAS assessment (binary: 0=no recidivism, 1=recidivism)** (the `two_year_recid` variable).
+
+## Variables
+- sex: Gender of the individual, encoded as categorical integer (0-based indexing). (datatype: Categorical (Binary/Integer))
+- race_cat: Race category, preprocessed into binary classification: typically 0=non-white, 1=white. (datatype: Categorical (Binary/Integer))
+- age_cat: Age group category derived from age at time of assessment, encoded as categorical integer (0-based indexing: typically representing ranges like '25 or Less', '26-45', 'Greater than 45'). (datatype: Categorical (Ordinal/Integer))
+- c_charge_degree: Degree of the current charge, encoded as categorical integer (0-based indexing of charge severity levels). (datatype: Categorical (Ordinal/Integer))
+- juv_fel_count_cat: Juvenile felony count category, preprocessed into binary: typically 0=no juvenile felonies, 1=one or more juvenile felonies. (datatype: Categorical (Binary/Integer))
+- juv_misd_count_cat: Juvenile misdemeanor count category, preprocessed into categories: typically 0=no juvenile misdemeanors, 1=one juvenile misdemeanor, 2=two or more juvenile misdemeanors. (datatype: Categorical (Ordinal/Integer))
+- juv_other_count_cat: Juvenile other offense count category, preprocessed into categories: typically 0=no juvenile other offenses, 1=one juvenile other offense, 2=two or more juvenile other offenses. (datatype: Categorical (Ordinal/Integer))
+- priors_count_cat: Prior convictions count category, preprocessed into multiple categories representing ranges of prior conviction counts (e.g., 0, 1, 2-3, 4-6, 7-9, 10-15, 15+). (datatype: Categorical (Ordinal/Integer))
+- days_b_screening_arrest_cat: Days between COMPAS screening and arrest category, preprocessed into categories representing different time ranges relative to screening date. (datatype: Categorical (Ordinal/Integer))
+- c_days_from_compas_cat: Days from current charge to COMPAS assessment category, preprocessed into categories representing different time ranges (e.g., 0, 1, 2-7, 8-14, 15-21, 22-28, 29+ days). (datatype: Categorical (Ordinal/Integer))
+- decile_score_cat: Original COMPAS decile risk score category, preprocessed into categories representing score ranges (e.g., 1-2=low risk, 3=low-medium, 4-5=medium, 6-7=medium-high, 8-10=high risk). Note: This should be used with caution due to documented bias in the original COMPAS system. (datatype: Categorical (Ordinal/Integer))
+- two_year_recid: **TARGET OUTCOME** - Two-year recidivism outcome: whether the individual was arrested for a new crime within two years of the COMPAS assessment, binary encoded: 0=no recidivism, 1=recidivism. This is the target outcome variable for the analysis. (datatype: Categorical (Binary/Integer))
+
+---
+
+## Task 1: Identify Protected Attributes AND Structural Proxies
+
+Identify two categories of variables:
+
+**Category 1 - Directly Protected Attributes:**
+Variables that represent protected characteristics (race, gender, age, etc.).
+
+**Category 2 - Structural Proxies:**
+Variables that are NOT legally protected themselves BUT serve as proxies for protected attributes OR perpetuate accumulated disadvantage. Consider:
+- Geographic proxies (Zipcode, Neighborhood) that reflect residential segregation
+- Educational proxies (School Quality) that reflect unequal opportunity
+- Name-based proxies that signal demographic characteristics
+- Wealth/income proxies that reflect intergenerational inequality
+
+For each variable in BOTH categories:
+- **Variable:** `variable_name`
+- **Category:** [1 or 2]
+- **Sociological Basis:** [Explain how this perpetuates historical disadvantage, citing research on structural discrimination]
+- **Privileged Group(s):** [Groups advantaged by this pathway]
+- **Unprivileged Group(s):** [Groups disadvantaged by this pathway]
+
+---
+
+## Task 2: Propose Causal Edge Constraints
+
+### 1. WHITELISTED EDGES (Must Exist - Deterministic Causal Links)
+List only deterministic causal relationships based on institutional rules or physical laws.
+
+Format as:
+- Source → Target: Brief justification.
+
+### 2. BLACKLISTED EDGES (Forbidden)
+
+**Type A - Theoretically Impossible:**
+- List edges where the target is a root node: **`race_cat`, `sex`, `age_cat`**. **This includes edges between root nodes themselves** - root nodes cannot cause each other (e.g., if both `race_cat` and `male_cat` are root nodes, blacklist both (`race_cat`, `male_cat`) and (`male_cat`, `race_cat`) in both directions).
+- List edges that violate temporal ordering.
+
+Format as:
+- Source → Target: Explanation.
+
+**Type B - Structural Discrimination (Anti-Subordination Violations):**
+**List edges from BOTH protected attributes (Category 1) AND structural proxies (Category 2) to the outcome variable (`two_year_recid`).**
+
+**YOU MUST block edges from proxy variables** if they serve as conduits for historical bias or perpetuate systemic disadvantage, even if they are not legally protected attributes.
+
+**Decision Rule:**
+- If Source is a protected attribute → Target is `two_year_recid`: **BLOCK**
+- If Source is a proxy that perpetuates historical disadvantage (zipcode reflecting segregation, parent income reflecting class reproduction) → Target: **BLOCK**
+- If Source represents genuine, evolving merit (current skills, effort) → Target: **ALLOW** (but be skeptical - most "merit" measures have structural components)
+
+Format as:
+- Source → Target: Explanation of how this perpetuates structural disadvantage.
+
+**Example:**
+- age → y: BLOCK (ageism in whether the individual was arrested for a new crime within two years of the COMPAS assessment (binary: 0=no recidivism, 1=recidivism))
+- zipcode → y: BLOCK (zipcode proxies for race due to residential segregation, perpetuating historical redlining)
+- parent_income → education → y: BLOCK THE FIRST EDGE (perpetuates class advantage, even though indirect)
+
+**IMPORTANT:**
+For Type B, only list edges that are otherwise causally plausible (i.e., it is theoretically possible for the source variable to cause the target variable, barring the specific fairness reason). If an edge is theoretically impossible (e.g., target is root node, temporal violation), it belongs in Type A, not Type B.
+
+---
+
+## Machine-Readable Output
+
+# Define whitelisted edges
+whitelisted_edges = [
+    ("source_variable_1", "target_variable_1"),
+]
+
+# Define blacklisted edges (theoretical impossibility)
+blacklisted_edges_type_A = [
+    ("source_variable_A1", "target_variable_A1"),
+]
+
+# Define blacklisted edges (protected attributes AND proxies)
+blacklisted_edges_type_B = [
+    ("protected_attribute_1", "two_year_recid"),
+    ("structural_proxy_1", "two_year_recid"),
+]

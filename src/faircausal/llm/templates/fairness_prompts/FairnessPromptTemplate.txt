@@ -1,0 +1,117 @@
+# Causal and Fairness Analysis for {dataset_name}
+
+You are a **{expert_persona}**. Your task is to apply your deep understanding of social mechanisms, institutional structures, and potential sources of bias to analyze the provided dataset. You will first identify protected attributes and then propose causal edge constraints for a fair causal discovery model. The explicit goal is to ensure that constraints help prevent the perpetuation of historical biases in models used for future predictions.
+
+## Dataset Context
+{dataset_context}
+The data reflects the state of affairs in **{country_or_region}** around **{data_collection_period}**.
+
+**Key Societal Considerations for this Analysis:**
+{societal_considerations}
+
+## Prediction Task
+The goal is to build a model that predicts **{outcome_variable_description}** (the `{outcome_variable}` variable).
+
+## Variables
+{variable_list_formatted}
+
+---
+## Task 1: Identify and Analyze Protected Attributes
+
+Your first task is to analyze the dataset variables to identify potential protected attributes from a fairness perspective. Ground your analysis in your expertise and the specific context provided.
+
+### Attribute Tiers
+
+**Tier 1 - Strongly Protected (Legal/Ethical Imperatives):**
+Variables that are universally recognized as requiring protection due to legal requirements (e.g., anti-discrimination laws), fundamental human rights, or clear historical patterns of discrimination. These should almost always be treated as protected attributes for the task of **{outcome_variable_description}**.
+
+**Tier 2 - Context-Dependent Protected (Domain-Specific Considerations):**
+Variables that may require protection depending on the specific application domain, cultural context, or potential for disparate impact. Your reasoning here should be heavily informed by the **{societal_considerations}**. For example, `age` is often in this category; its relevance must be carefully weighed against the risk of ageism.
+
+**Tier 3 - Potentially Sensitive (Case-by-Case Evaluation):**
+Variables that could potentially be sensitive in certain circumstances but are not inherently protected. These require careful consideration of the specific use case and their potential to act as a proxy for other protected characteristics.
+
+**Non-Protected:**
+Variables that are generally appropriate to use in decision-making for this context, are directly relevant to the prediction task, and are unlikely to cause unfair discrimination.
+
+### Your Task
+For each variable in the dataset, classify it into a tier and provide the following details:
+
+- **Variable:** `variable_name`
+- **Tier:** [1, 2, 3, or Non-Protected]
+- **Privileged Group(s):** [For Tiers 1-3, specify the group(s) within this attribute that historically receive better treatment or outcomes for this task.]
+- **Unprivileged Group(s):** [For Tiers 1-3, specify the group(s) within this attribute that historically face discrimination or worse outcomes.]
+- **Rationale:** [Justify your classification. For protected tiers, explain *why* it's protected for this specific prediction task, referencing the guidelines below and the provided context. For the non-protected tier, briefly explain why it is considered safe to use.]
+
+### Guidelines for Classification:
+Use the following criteria to guide your classification:
+1.  **Legal Framework**: Consider anti-discrimination laws in **{country_or_region}**.
+2.  **Historical Context**: Evaluate historical patterns of discrimination related to this attribute in the specific domain (**{outcome_variable_description}**), informed by the **{societal_considerations}**.
+3.  **Prediction Impact**: Assess whether using this attribute could lead to unfair outcomes or disparate impact in the prediction task.
+4.  **Proxy Potential**: Consider whether this attribute could serve as a close proxy for other protected characteristics.
+5.  **Changeability**: Generally, immutable or difficult-to-change characteristics require stronger protection.
+6.  **Domain Relevance**: Assess if the attribute is a legitimate and necessary factor for the task, or if its inclusion would be discriminatory.
+
+**Important Notes:**
+- Be conservative when in doubt; it's better to over-protect than to enable discrimination.
+- Consider intersectional effects where combinations of attributes may affect specific subgroups.
+- Distinguish between direct discrimination (explicit use of the attribute) and indirect discrimination (where the attribute's use leads to disparate impact).
+
+---
+## Task 2: Propose Causal Edge Constraints
+
+Based on your analysis in Task 1, provide two types of causal edge constraints for building a fair causal discovery model.
+
+### 1. WHITELISTED EDGES (Must Exist - Deterministic Causal Links)
+List only those directed edges (A → B) for which there is a **deterministic, universally-agreed causal relationship** that is expected to be stable over time and across societal shifts (unless the rule itself changes). Do not include edges based merely on statistical association or strong social plausibility if they are not deterministic.
+Format as:
+- Source → Target: Brief justification referencing the rule or mechanism that guarantees this deterministic relationship.
+
+*Self-correction note: Be extremely conservative. If an edge represents a strong influence but not a deterministically guaranteed link, do not whitelist it. For example, while `{example_influential_variable}` may strongly influence **{outcome_variable_description}**, it is not a deterministic rule for all cases and should not be whitelisted.*
+
+### 2. BLACKLISTED EDGES (Forbidden)
+
+**Type A - Improbable/Impossible (Violating Root Node Status or Theoretical Impossibility):**
+- List all directed edges where the **target is a root node**. For this dataset, the root nodes are **{root_nodes_list}**. These are {root_nodes_description}. No other variable in this dataset can cause them.
+- Additionally, list any other edges that are theoretically impossible due to temporal ordering or the fundamental nature of the variables.
+Format as:
+- Source → Target: Explanation of why this causal relationship is impossible (e.g., "Target is a root node ({example_root_node})", "Violates temporal order").
+
+**Type B - Fairness Violations (Preventing Direct Discriminatory Pathways in the Model):**
+List directed edges from the **Tier 1 and Tier 2 protected attributes you identified in Task 1** to the outcome variable (`{outcome_variable}`). **Critically, this includes edges that might reflect historical discrimination or social norms from {data_collection_period} that would be inappropriate and unfair to perpetuate in models used for {prediction_context}**. The goal is to prevent the model from learning and perpetuating harmful historical biases by using protected attributes as direct, unmediated causes that bypass more legitimate, evolving pathways.
+
+**Key principle**: We want to force the model to discover legitimate mediating pathways (such as through {example_mediating_pathways}) rather than allowing shortcuts through direct demographic-to-outcome links that could perpetuate historical biases.
+
+**Additional temporal consideration**: Since this model will predict future outcomes, be especially vigilant about blacklisting edges that might have reflected historical discrimination or social norms from **{data_collection_period}** that would be inappropriate to perpetuate in **{prediction_context}**. Focus on preventing the model from learning historical bias patterns that could unfairly disadvantage protected groups in future contexts.
+
+Format as:
+- Source → Target: Explanation of how allowing the model to learn this direct edge would risk unfair predictions by perpetuating systemic biases concerning the protected attributes and **{outcome_variable_description}**.
+
+IMPORTANT:
+For Blacklisted Type B, only list edges that are otherwise causally plausible (i.e., it is theoretically possible for the source variable to cause the target variable, barring the specific fairness reason).
+
+## Guidelines
+- Consider temporal ordering (causes must precede effects).
+- Consider relevant causal relationships, distinguishing between **enduring social mechanisms** and **historical biases or outdated social norms from {data_collection_period} that should not influence models used for {prediction_context}**.
+- For fairness: Focus on preventing the *model* from learning direct discriminatory pathways. The aim is to ensure that if protected attributes influence the outcome, it is through explicitly modeled, justifiable, **and equitable** mediating variables **that are not themselves primarily proxies for discriminatory social patterns.**
+- Be extremely conservative with whitelisting.
+
+## Response Format
+[Provide your response for Task 1 first, then provide the machine-readable output for Task 2]
+
+## Machine-Readable Output for Algorithm Ingestion
+At the end of your response, present the whitelisted and blacklisted edges in machine-readable Python list objects.
+# Define whitelisted edges based on node names
+whitelisted_edges = [
+    ("source_variable_1", "target_variable_1"),
+]
+
+# Define blacklisted edges (improbable/impossible) based on node names
+blacklisted_edges_type_A = [
+    ("source_variable_A1", "target_variable_A1"),
+]
+
+# Define blacklisted edges (fairness) based on node names
+blacklisted_edges_type_B = [
+    ("source_variable_B1", "target_variable_B1"),
+]

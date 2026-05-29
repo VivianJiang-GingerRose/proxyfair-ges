@@ -1,0 +1,162 @@
+[
+    {
+        "_schema": {
+            "dataset_name": {
+                "type": "String",
+                "description": "The official, human-readable name of the dataset."
+            },
+            "dataset_context": {
+                "type": "String",
+                "description": "A high-level paragraph describing the dataset's origin and contents."
+            },
+            "country_or_region": {
+                "type": "String",
+                "description": "The geographical and legal context for the data, used for reasoning about laws and norms."
+            },
+            "data_collection_period": {
+                "type": "String",
+                "description": "The time frame when the data was collected, crucial for historical context."
+            },
+            "expert_persona": {
+                "type": "String",
+                "description": "The expert role the LLM should adopt for the analysis."
+            },
+            "societal_considerations": {
+                "type": "String",
+                "description": "Specific, nuanced historical and social factors for the LLM to focus on."
+            },
+            "prediction_context": {
+                "type": "String",
+                "description": "Describes the future application context for the model."
+            },
+            "outcome_variable": {
+                "type": "String",
+                "description": "The machine-readable name of the target variable for prediction."
+            },
+            "outcome_variable_description": {
+                "type": "String",
+                "description": "A human-readable description of the prediction goal."
+            },
+            "root_nodes_list": {
+                "type": "Array of Strings",
+                "description": "A list of variable names that are considered exogenous (root) nodes."
+            },
+            "root_nodes_description": {
+                "type": "String",
+                "description": "A brief, human-readable explanation of why these variables are root nodes."
+            },
+            "example_root_node": {
+                "type": "String",
+                "description": "A single example of a root node, used for formatting examples in the prompt."
+            },
+            "example_influential_variable": {
+                "type": "String",
+                "description": "A variable that is known to be influential but not deterministic, for use in examples."
+            },
+            "example_mediating_pathways": {
+                "type": "Array of Strings",
+                "description": "A list of legitimate mediating variables for the LLM to consider."
+            },
+            "columns": {
+                "type": "Array of Strings",
+                "description": "A simple list of all column names in the dataset."
+            },
+            "column_details": {
+                "type": "Object",
+                "description": "An object where each key is a column name. The value is another object containing a 'description' (String) and 'datatype' (String) for that column."
+            }
+        },
+        "dataset_name": "Law School Admission and Bar Exam Performance",
+        "dataset_context": "This dataset contains law school admission and academic performance records from a Law School Admission Council (LSAC) survey conducted across 163 law schools in the United States in 1991. The data includes demographic information, academic credentials (LSAT scores, undergraduate GPA), law school performance metrics (first-year and cumulative law school GPA, class rankings), and institutional characteristics (school tier). The dataset was originally designed to study factors affecting law school admission and academic success. The outcome variable of interest is 'pass_bar' (bar examination passage).",
+        "country_or_region": "United States",
+        "data_collection_period": "1991",
+        "expert_persona": "a legal education policy analyst and civil rights expert with expertise in educational equity, bar examination fairness, racial and gender disparities in legal education, constitutional equal protection law, and the historical context of discrimination in access to legal professions in the United States",
+        "societal_considerations": "Consider the historical context of discrimination in legal education and the legal profession in the United States, including barriers faced by women and racial minorities in accessing law school admission and passing bar examinations. Analyze how socioeconomic factors, represented by family income and educational background, may create structural inequalities in legal career outcomes. Evaluate the role of standardized testing (LSAT) and undergraduate academic performance in potentially perpetuating existing educational and socioeconomic disparities. Consider how law school tier and institutional prestige may reflect and reinforce systemic inequalities in the legal profession. Assess the ethical implications of using demographic characteristics and socioeconomic indicators in predicting professional success, particularly given historical exclusion of underrepresented groups from the legal profession.",
+        "prediction_context": "modern, equitable legal education systems that promote diversity and inclusion in the legal profession while maintaining professional competency standards and addressing historical disparities in bar examination passage rates",
+        "outcome_variable": "pass_bar",
+        "outcome_variable_description": "whether the individual passed the bar examination (binary: 0=failed, 1=passed)",
+        "root_nodes_list": [
+            "race_cat",
+            "male_cat",
+            "fam_inc_cat"
+        ],
+        "root_nodes_description": "fundamental demographic and socioeconomic characteristics that are largely determined before law school entry and influence subsequent educational opportunities and outcomes",
+        "example_root_node": "race_cat",
+        "example_influential_variable": "lsat_cat",
+        "example_mediating_pathways": [
+            "lsat_cat",
+            "ugpa_cat",
+            "tier_cat",
+            "fulltime_cat",
+            "zfygpa_cat",
+            "zgpa_cat",
+            "decile1b_cat",
+            "decile3_cat"
+        ],
+        "fairness_blacklist_example_narrative": "A hypothetical scenario where admission committees use race as a direct factor in determining law school placement or bar exam preparation resources, rather than focusing on addressing underlying educational inequities and providing equal support for academic success across all demographic groups.",
+        "columns": [
+            "race_cat",
+            "male_cat",
+            "fam_inc_cat",
+            "lsat_cat",
+            "ugpa_cat",
+            "tier_cat",
+            "fulltime_cat",
+            "zfygpa_cat",
+            "zgpa_cat",
+            "decile1b_cat",
+            "decile3_cat",
+            "pass_bar"
+        ],
+        "column_details": {
+            "race_cat": {
+                "description": "Race category, encoded as binary: 0=Non-White, 1=White.",
+                "datatype": "Categorical (Binary/Integer)"
+            },
+            "male_cat": {
+                "description": "Gender category, encoded as binary: 0=Female, 1=Male.",
+                "datatype": "Categorical (Binary/Integer)"
+            },
+            "fam_inc_cat": {
+                "description": "Family income bracket category, ranging from 1 (lowest income) to 5 (highest income), representing socioeconomic background.",
+                "datatype": "Categorical (Ordinal/Integer)"
+            },
+            "lsat_cat": {
+                "description": "LSAT (Law School Admission Test) score category, binned into 6 ranges: 0=[11-25], 1=[26-30], 2=[31-35], 3=[36-40], 4=[41-45], 5=[46-48], representing standardized test performance for law school admission.",
+                "datatype": "Categorical (Ordinal/Integer)"
+            },
+            "ugpa_cat": {
+                "description": "Undergraduate GPA (Grade Point Average) category, binned into 5 ranges: 0=[1.5-2.5], 1=[2.6-3.0], 2=[3.1-3.3], 3=[3.4-3.7], 4=[3.8-4.0], representing prior academic performance.",
+                "datatype": "Categorical (Ordinal/Integer)"
+            },
+            "tier_cat": {
+                "description": "Law school tier category, ranging from 1 to 6, representing the prestige and ranking of the law school attended (1=highest tier, 6=lowest tier).",
+                "datatype": "Categorical (Ordinal/Integer)"
+            },
+            "fulltime_cat": {
+                "description": "Study schedule category, encoded as binary: 0=Part-time student, 1=Full-time student, indicating enrollment intensity.",
+                "datatype": "Categorical (Binary/Integer)"
+            },
+            "zfygpa_cat": {
+                "description": "Normalized first-year law school GPA category, binned into 6 ranges: 0=[-3.35 to -1.0], 1=[-1.0 to -0.3], 2=[-0.3 to 0.3], 3=[0.3 to 1.0], 4=[1.0 to 2.0], 5=[2.0 to 3.48], representing early law school academic performance.",
+                "datatype": "Categorical (Ordinal/Integer)"
+            },
+            "zgpa_cat": {
+                "description": "Normalized cumulative law school GPA category, binned into 6 ranges: 0=[-6.44 to -1.2], 1=[-1.2 to -0.4], 2=[-0.4 to 0.4], 3=[0.4 to 1.2], 4=[1.2 to 2.5], 5=[2.5 to 4.01], representing overall law school academic performance.",
+                "datatype": "Categorical (Ordinal/Integer)"
+            },
+            "decile1b_cat": {
+                "description": "First-year class rank decile category, ranging from 1 (top 10%) to 10 (bottom 10%), representing relative academic performance among peers in the first year.",
+                "datatype": "Categorical (Ordinal/Integer)"
+            },
+            "decile3_cat": {
+                "description": "Third-year class rank decile category, ranging from 1 (top 10%) to 10 (bottom 10%), representing relative academic performance among peers by graduation.",
+                "datatype": "Categorical (Ordinal/Integer)"
+            },
+            "pass_bar": {
+                "description": "Bar examination outcome: whether the individual passed the bar examination required for legal practice, binary encoded: 0=failed, 1=passed. This is the target outcome variable for the analysis.",
+                "datatype": "Categorical (Binary/Integer)"
+            }
+        }
+    }
+]

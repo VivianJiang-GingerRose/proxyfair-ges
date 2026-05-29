@@ -1,0 +1,103 @@
+# Fairness-Aware Causal Discovery for Dutch
+## Framework: Anti-Classification (Formal Equality / Disparate Treatment)
+
+You are a **legal compliance expert specializing in anti-discrimination law**. Apply the **anti-classification principle**: protected attributes (race, gender, age, etc.) MUST NOT **directly** cause decisions, as this constitutes illegal disparate treatment under **Netherlands** law.
+
+**CRITICAL INSTRUCTION - YOU MUST ALLOW PROXY VARIABLES:**
+Proxy variables (like Zipcode, School Quality, Neighborhood, Name) are **NOT** protected attributes themselves under the law. Even though they may correlate with protected attributes, they ARE LEGALLY PERMISSIBLE to use in decision-making as long as they are not protected attributes themselves.
+
+**Your task is to block ONLY direct use of protected attributes, NOT their correlates.**
+
+## Dataset Context
+This dataset is a preprocessed version of a Dutch national census, curated for causal discovery analysis using structure learning algorithms such as GES. The data consists of demographic, socio-economic, and employment-related variables for individuals in the Netherlands. The outcome variable of interest is 'occupation'.
+The data reflects the state of affairs in **Netherlands** around **2000s**.
+
+## Prediction Task
+The goal is to build a model that predicts **occupation classification** (the `occupation` variable).
+
+## Variables
+- age: Age of the individual. (datatype: Categorical (Ordinal/String))
+- household_position: Position of the individual within the household. (datatype: Categorical (Nominal/String))
+- household_size: Size of the household. (datatype: Categorical (Ordinal/String))
+- prev_residence_place: Previous place of residence. (datatype: Categorical (Nominal/String))
+- citizenship: Citizenship status of the individual. (datatype: Categorical (Nominal/String))
+- country_birth: Country of birth of the individual. (datatype: Categorical (Nominal/String))
+- edu_level: Highest education level achieved. (datatype: Categorical (Ordinal/String))
+- economic_status: Economic status of the individual. (datatype: Categorical (Nominal/String))
+- cur_eco_activity: Current economic activity. (datatype: Categorical (Nominal/String))
+- marital_status: Marital status of the individual. (datatype: Categorical (Nominal/String))
+- occupation: **TARGET OUTCOME** - Occupation of the individual. This is the target outcome variable for the analysis. (datatype: Categorical (Nominal/String))
+- sex_enc: Encoded gender: '0' for male, '1' for female, '-1' for unmapped. Derived from the original 'sex' column. This is the primary protected attribute in this analysis setup. (datatype: Categorical (Binary/String))
+
+---
+
+## Task 1: Identify Legally Protected Attributes
+
+Identify variables that are **legally protected** under **Netherlands** anti-discrimination law (e.g., race, gender, age, religion, disability).
+
+For each protected attribute:
+- **Variable:** `variable_name`
+- **Legal Basis:** [Cite the legal framework, e.g., "Protected under EU Employment Equality Directive"]
+- **Privileged Group(s):** [Groups that historically receive better treatment]
+- **Unprivileged Group(s):** [Groups that historically face discrimination]
+
+**IMPORTANT:**
+- Variables that are NOT explicitly protected by law (even if they correlate with protected attributes) should NOT be listed here.
+- Example: `Zipcode` is NOT a protected attribute, even though it may correlate with `Race`.
+
+---
+
+## Task 2: Propose Causal Edge Constraints
+
+### 1. WHITELISTED EDGES (Must Exist - Deterministic Causal Links)
+List only deterministic causal relationships based on institutional rules or physical laws.
+
+Format as:
+- Source → Target: Brief justification.
+
+### 2. BLACKLISTED EDGES (Forbidden)
+
+**Type A - Theoretically Impossible:**
+- List edges where the target is a root node: **`age`, `sex_enc`, `country_birth`**. **This includes edges between root nodes themselves** - root nodes cannot cause each other (e.g., if both `race_cat` and `male_cat` are root nodes, blacklist both (`race_cat`, `male_cat`) and (`male_cat`, `race_cat`) in both directions).
+- List edges that violate temporal ordering.
+
+Format as:
+- Source → Target: Explanation (e.g., "Target is root node", "Temporal violation").
+
+**Type B - Direct Discrimination (Anti-Classification Violations):**
+**List ONLY edges from legally protected attributes you identified in Task 1 to the outcome variable (`occupation`).**
+
+**YOU MUST NOT block edges from proxy variables** (Zipcode, School, Neighborhood, etc.) even if they correlate with protected attributes. The law prohibits direct use of protected categories, not their correlates.
+
+**Decision Rule:**
+- If Source is a legally protected attribute (race, gender, age) AND Target is `occupation`: **BLOCK**
+- If Source is a proxy variable (zipcode, school, neighborhood) → Target: **ALLOW** (even if correlated with protected attributes)
+
+Format as:
+- Source → Target: Explanation of legal violation (e.g., "Direct use of protected attribute `age` violates anti-discrimination law").
+
+**Example:**
+- age → y: BLOCK (direct age discrimination in occupation classification)
+- zipcode → y: ALLOW (zipcode is not a protected attribute under the law)
+
+**IMPORTANT:**
+For Type B, only list edges that are otherwise causally plausible (i.e., it is theoretically possible for the source variable to cause the target variable, barring the specific fairness/legal reason). If an edge is theoretically impossible (e.g., target is root node, temporal violation), it belongs in Type A, not Type B.
+
+---
+
+## Machine-Readable Output
+
+# Define whitelisted edges
+whitelisted_edges = [
+    ("source_variable_1", "target_variable_1"),
+]
+
+# Define blacklisted edges (theoretical impossibility)
+blacklisted_edges_type_A = [
+    ("source_variable_A1", "target_variable_A1"),
+]
+
+# Define blacklisted edges (direct discrimination only)
+blacklisted_edges_type_B = [
+    ("protected_attribute_1", "occupation"),
+]

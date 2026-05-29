@@ -1,0 +1,130 @@
+{
+  "dataset_name": "compas",
+  "description": "COMPAS Dataset Configuration for Fair Causal Discovery",
+  
+  "data_settings": {
+    "data_loader_module": "src.faircausal.data.data_loader_compas",
+    "data_path": "data/data_compas/compas-scores-two-years_clean.csv",
+    "preprocessed_export_path": "data/data_compas/compas_preprocessed.csv"
+  },
+  
+  "fairness_settings": {
+    "protected_attrs": ["race_cat", "sex"],
+    "target": "two_year_recid",
+    "disadvantage_group": {
+      "race_cat": 0,
+      "sex": 1
+    }
+  },
+  
+  "variable_settings": {
+    "var_types": {
+      "sex": "categorical",
+      "race_cat": "categorical", 
+      "age_binary": "categorical",
+      "c_charge_degree": "categorical",
+      "juv_fel_count_cat": "categorical",
+      "juv_misd_count_cat": "categorical",
+      "juv_other_count_cat": "categorical",
+      "priors_count_cat": "categorical",
+      "days_b_screening_arrest_cat": "categorical",
+      "c_days_from_compas_cat": "categorical",
+      "decile_score_cat": "categorical",
+      "v_decile_score_cat": "categorical",
+      "two_year_recid": "binary"
+    }
+  },
+  
+  "constraint_settings": {
+    "whitelist_edges": [
+    ],
+    
+    "blacklist_edges": {
+      "demographic_constraints": [
+        ["sex", "race_cat"],
+        ["age_binary", "race_cat"],
+        ["c_charge_degree", "race_cat"],
+        ["juv_fel_count_cat", "race_cat"],
+        ["juv_misd_count_cat", "race_cat"],
+        ["juv_other_count_cat", "race_cat"],
+        ["priors_count_cat", "race_cat"],
+        ["days_b_screening_arrest_cat", "race_cat"],
+        ["c_days_from_compas_cat", "race_cat"],
+        ["decile_score_cat", "race_cat"],
+        ["two_year_recid", "race_cat"],
+        ["race_cat", "sex"],
+        ["age_binary", "sex"],
+        ["c_charge_degree", "sex"],
+        ["juv_fel_count_cat", "sex"],
+        ["juv_misd_count_cat", "sex"],
+        ["juv_other_count_cat", "sex"],
+        ["priors_count_cat", "sex"],
+        ["days_b_screening_arrest_cat", "sex"],
+        ["c_days_from_compas_cat", "sex"],
+        ["decile_score_cat", "sex"],
+        ["two_year_recid", "sex"],
+        ["race_cat", "age_binary"],
+        ["sex", "age_binary"],
+        ["c_charge_degree", "age_binary"],
+        ["juv_fel_count_cat", "age_binary"],
+        ["juv_misd_count_cat", "age_binary"],
+        ["juv_other_count_cat", "age_binary"],
+        ["priors_count_cat", "age_binary"],
+        ["days_b_screening_arrest_cat", "age_binary"],
+        ["c_days_from_compas_cat", "age_binary"],
+        ["decile_score_cat", "age_binary"],
+        ["two_year_recid", "age_binary"],
+        ["two_year_recid", "c_charge_degree"],
+        ["two_year_recid", "juv_fel_count_cat"],
+        ["two_year_recid", "juv_misd_count_cat"],
+        ["two_year_recid", "juv_other_count_cat"],
+        ["two_year_recid", "priors_count_cat"],
+        ["two_year_recid", "days_b_screening_arrest_cat"],
+        ["two_year_recid", "c_days_from_compas_cat"],
+        ["two_year_recid", "decile_score_cat"],
+        ["two_year_recid", "v_decile_score_cat"]
+      ],
+      
+      "fairness_constraints": [
+        ["race_cat", "two_year_recid"],
+        ["sex", "two_year_recid"],
+        ["age_binary", "two_year_recid"]
+      ]
+    }
+  },
+  
+  "experiment_settings": {
+    "max_dags": 2000,
+    "save_models": false,
+    "generate_synthetic": true,
+    "synthetic_variants": {
+      "double": false,
+      "balanced": false,
+      "protected": false
+    }
+  },
+
+  "soft_fairness_settings": {
+    "lambda": 2,
+    "lambda_strategy": "normative_anchoring",
+    "lambda_grid": [0, 0.1, 0.5, 1.0, 2.0, 5.0, 10.0],
+    "epsilon": 0.05,
+    "fairness_metric": "TE",
+    "path_effect_method": "distance",
+    "tau_c": 5,
+    "beta": 0.0,
+    "max_stage2_dags": 50
+  },
+
+  "counterfactual_settings": {
+    "sample_percentage": 0.5,
+    "min_samples": 10,
+    "random_state": 42,
+    "structure_discovery_ratio": 0.5,
+    "enable_sample_splitting": true,
+    "cutoff_threshold": 0.5,
+    "calculate_pse": true,
+    "pse_sample_size": 300,
+    "max_paths": 3
+  }
+}

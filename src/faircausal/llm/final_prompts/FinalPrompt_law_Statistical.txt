@@ -1,0 +1,65 @@
+# Causal Discovery Analysis for Law School Admission and Bar Exam Performance
+
+You are a **statistical methodologist and causal inference expert**. Your task is to identify causal relationships based purely on statistical validity and theoretical plausibility. **Do NOT consider fairness, ethics, or discrimination concerns** - focus only on whether causal relationships are statistically sound and theoretically possible.
+
+## Dataset Context
+This dataset contains law school admission and academic performance records from a Law School Admission Council (LSAC) survey conducted across 163 law schools in the United States in 1991. The data includes demographic information, academic credentials (LSAT scores, undergraduate GPA), law school performance metrics (first-year and cumulative law school GPA, class rankings), and institutional characteristics (school tier). The dataset was originally designed to study factors affecting law school admission and academic success. The outcome variable of interest is 'pass_bar' (bar examination passage).
+The data reflects the state of affairs in **United States** around **1991**.
+
+## Prediction Task
+The goal is to build a model that predicts **whether the individual passed the bar examination (binary: 0=failed, 1=passed)** (the `pass_bar` variable).
+
+## Variables
+- race_cat: Race category, encoded as binary: 0=Non-White, 1=White. (datatype: Categorical (Binary/Integer))
+- male_cat: Gender category, encoded as binary: 0=Female, 1=Male. (datatype: Categorical (Binary/Integer))
+- fam_inc_cat: Family income bracket category, ranging from 1 (lowest income) to 5 (highest income), representing socioeconomic background. (datatype: Categorical (Ordinal/Integer))
+- lsat_cat: LSAT (Law School Admission Test) score category, binned into 6 ranges: 0=[11-25], 1=[26-30], 2=[31-35], 3=[36-40], 4=[41-45], 5=[46-48], representing standardized test performance for law school admission. (datatype: Categorical (Ordinal/Integer))
+- ugpa_cat: Undergraduate GPA (Grade Point Average) category, binned into 5 ranges: 0=[1.5-2.5], 1=[2.6-3.0], 2=[3.1-3.3], 3=[3.4-3.7], 4=[3.8-4.0], representing prior academic performance. (datatype: Categorical (Ordinal/Integer))
+- tier_cat: Law school tier category, ranging from 1 to 6, representing the prestige and ranking of the law school attended (1=highest tier, 6=lowest tier). (datatype: Categorical (Ordinal/Integer))
+- fulltime_cat: Study schedule category, encoded as binary: 0=Part-time student, 1=Full-time student, indicating enrollment intensity. (datatype: Categorical (Binary/Integer))
+- zfygpa_cat: Normalized first-year law school GPA category, binned into 6 ranges: 0=[-3.35 to -1.0], 1=[-1.0 to -0.3], 2=[-0.3 to 0.3], 3=[0.3 to 1.0], 4=[1.0 to 2.0], 5=[2.0 to 3.48], representing early law school academic performance. (datatype: Categorical (Ordinal/Integer))
+- zgpa_cat: Normalized cumulative law school GPA category, binned into 6 ranges: 0=[-6.44 to -1.2], 1=[-1.2 to -0.4], 2=[-0.4 to 0.4], 3=[0.4 to 1.2], 4=[1.2 to 2.5], 5=[2.5 to 4.01], representing overall law school academic performance. (datatype: Categorical (Ordinal/Integer))
+- decile1b_cat: First-year class rank decile category, ranging from 1 (top 10%) to 10 (bottom 10%), representing relative academic performance among peers in the first year. (datatype: Categorical (Ordinal/Integer))
+- decile3_cat: Third-year class rank decile category, ranging from 1 (top 10%) to 10 (bottom 10%), representing relative academic performance among peers by graduation. (datatype: Categorical (Ordinal/Integer))
+- pass_bar: **TARGET OUTCOME** - Bar examination outcome: whether the individual passed the bar examination required for legal practice, binary encoded: 0=failed, 1=passed. This is the target outcome variable for the analysis. (datatype: Categorical (Binary/Integer))
+
+---
+
+## Task: Propose Causal Edge Constraints
+
+Provide two types of causal edge constraints based purely on statistical and theoretical considerations.
+
+### 1. WHITELISTED EDGES (Must Exist - Deterministic Causal Links)
+List only those directed edges (A → B) for which there is a **deterministic, universally-agreed causal relationship** based on physical laws, institutional rules, or mathematical definitions.
+
+Format as:
+- Source → Target: Brief justification referencing the deterministic rule or mechanism.
+
+### 2. BLACKLISTED EDGES (Forbidden - Theoretical Impossibility)
+
+**Type A - Theoretically Impossible:**
+- List all directed edges where the **target is a root node**. For this dataset, the root nodes are **`race_cat`, `male_cat`, `fam_inc_cat`**. These are fundamental demographic and socioeconomic characteristics that are largely determined before law school entry and influence subsequent educational opportunities and outcomes. No other variable can cause them. **This includes edges between root nodes themselves** - root nodes cannot cause each other (e.g., if both `race_cat` and `male_cat` are root nodes, blacklist both (`race_cat`, `male_cat`) and (`male_cat`, `race_cat`) in both directions).
+- Additionally, list any edges that violate temporal ordering or are logically impossible.
+
+Format as:
+- Source → Target: Explanation of why this is theoretically impossible (e.g., "Target is a root node", "Violates temporal order").
+
+**IMPORTANT:** Do NOT include any edges in Type A that are blocked for fairness reasons. Only include edges that are statistically or theoretically impossible.
+
+---
+
+## Machine-Readable Output
+At the end of your response, present the edges in this format:
+
+# Define whitelisted edges
+whitelisted_edges = [
+    ("source_variable_1", "target_variable_1"),
+]
+
+# Define blacklisted edges (theoretical impossibility only)
+blacklisted_edges_type_A = [
+    ("source_variable_A1", "target_variable_A1"),
+]
+
+# Statistical framework has no fairness constraints
+blacklisted_edges_type_B = []

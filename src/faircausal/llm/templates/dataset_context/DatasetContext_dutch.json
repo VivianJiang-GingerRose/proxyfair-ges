@@ -1,0 +1,121 @@
+[
+    {
+        "_schema": {
+            "dataset_name": {
+                "type": "String",
+                "description": "The official, human-readable name of the dataset."
+            },
+            "dataset_context": {
+                "type": "String",
+                "description": "A high-level paragraph describing the dataset's origin and contents."
+            },
+            "country_or_region": {
+                "type": "String",
+                "description": "The geographical and legal context for the data, used for reasoning about laws and norms."
+            },
+            "data_collection_period": {
+                "type": "String",
+                "description": "The time frame when the data was collected, crucial for historical context."
+            },
+            "expert_persona": {
+                "type": "String",
+                "description": "The expert role the LLM should adopt for the analysis."
+            },
+            "societal_considerations": {
+                "type": "String",
+                "description": "Specific, nuanced historical and social factors for the LLM to focus on."
+            },
+            "prediction_context": {
+                "type": "String",
+                "description": "Describes the future application context for the model."
+            },
+            "outcome_variable": {
+                "type": "String",
+                "description": "The machine-readable name of the target variable for prediction."
+            },
+            "outcome_variable_description": {
+                "type": "String",
+                "description": "A human-readable description of the prediction goal."
+            },
+            "root_nodes_list": {
+                "type": "Array of Strings",
+                "description": "A list of variable names that are considered exogenous (root) nodes."
+            },
+            "root_nodes_description": {
+                "type": "String",
+                "description": "A brief, human-readable explanation of why these variables are root nodes."
+            },
+            "example_root_node": {
+                "type": "String",
+                "description": "A single example of a root node, used for formatting examples in the prompt."
+            },
+            "example_influential_variable": {
+                "type": "String",
+                "description": "A variable that is known to be influential but not deterministic, for use in examples."
+            },
+            "example_mediating_pathways": {
+                "type": "Array of Strings",
+                "description": "A list of legitimate mediating variables for the LLM to consider."
+            },
+            "columns": {
+                "type": "Array of Strings",
+                "description": "A simple list of all column names in the dataset."
+            },
+            "column_details": {
+                "type": "Object",
+                "description": "An object where each key is a column name. The value is another object containing a 'description' (String) and 'datatype' (String) for that column."
+            }
+        },
+        "dataset_name": "Dutch",
+        "dataset_context": "This dataset is a preprocessed version of a Dutch national census, curated for causal discovery analysis using structure learning algorithms such as GES. The data consists of demographic, socio-economic, and employment-related variables for individuals in the Netherlands. The outcome variable of interest is 'occupation'.",
+        "country_or_region": "Netherlands",
+        "data_collection_period": "2000s",
+        "expert_persona": "a labor economist and sociologist with expertise in Dutch employment law, gender equality, and the social structure of work in the Netherlands during the 2000s",
+        "societal_considerations": "Consider historical and legal efforts toward gender equality in the Dutch labor market, the presence of occupational segregation by gender, and evolving social norms surrounding work and family. Analyze how these factors may have influenced both employment opportunities and census data collection.",
+        "prediction_context": "modern, equitable employment decision support systems",
+        "outcome_variable": "occupation",
+        "outcome_variable_description": "occupation classification",
+        "root_nodes_list": [
+            "age",
+            "sex_enc",
+            "country_birth"
+        ],
+        "root_nodes_description": "basic demographic and immutable characteristics of the individual that precede all other variables",
+        "example_root_node": "sex_enc",
+        "example_influential_variable": "edu_level",
+        "example_mediating_pathways": [
+            "edu_level",
+            "marital_status",
+            "cur_eco_activity",
+            "economic_status"
+        ],
+        "columns": [
+            "age",
+            "household_position",
+            "household_size",
+            "prev_residence_place",
+            "citizenship",
+            "country_birth",
+            "edu_level",
+            "economic_status",
+            "cur_eco_activity",
+            "marital_status",
+            "occupation",
+            "sex_enc"
+        ],
+        "column_details": {
+            "age": {"description": "Age of the individual.", "datatype": "Categorical (Ordinal/String)"},
+            "household_position": {"description": "Position of the individual within the household.", "datatype": "Categorical (Nominal/String)"},
+            "household_size": {"description": "Size of the household.", "datatype": "Categorical (Ordinal/String)"},
+            "prev_residence_place": {"description": "Previous place of residence.", "datatype": "Categorical (Nominal/String)"},
+            "citizenship": {"description": "Citizenship status of the individual.", "datatype": "Categorical (Nominal/String)"},
+            "country_birth": {"description": "Country of birth of the individual.", "datatype": "Categorical (Nominal/String)"},
+            "edu_level": {"description": "Highest education level achieved.", "datatype": "Categorical (Ordinal/String)"},
+            "economic_status": {"description": "Economic status of the individual.", "datatype": "Categorical (Nominal/String)"},
+            "cur_eco_activity": {"description": "Current economic activity.", "datatype": "Categorical (Nominal/String)"},
+            "marital_status": {"description": "Marital status of the individual.", "datatype": "Categorical (Nominal/String)"},
+            "occupation": {"description": "Occupation of the individual. This is the target outcome variable for the analysis.", "datatype": "Categorical (Nominal/String)"},
+            "sex_enc": {"description": "Encoded gender: '0' for male, '1' for female, '-1' for unmapped. Derived from the original 'sex' column. This is the primary protected attribute in this analysis setup.", "datatype": "Categorical (Binary/String)"}
+        }
+    }
+]

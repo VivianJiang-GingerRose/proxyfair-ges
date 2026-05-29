@@ -1,0 +1,147 @@
+{
+  "dataset_name": "german",
+  "description": "German Credit Dataset Configuration for Fair Causal Discovery",
+  
+  "data_settings": {
+    "data_loader_module": "src.faircausal.data.data_loader_german",
+    "data_path": "data/data_german/german_data_credit_dataset.csv",
+    "preprocessed_export_path": "data/data_german/german_credit_preprocessed.csv"
+  },
+  
+  "fairness_settings": {
+    "protected_attrs": ["gender", "foreignworker"],
+    "target": "classification",
+    "disadvantage_group": {
+      "gender": 1,
+      "foreignworker": 1
+    }
+  },
+  
+  "variable_settings": {
+    "var_types": {
+      "duration_cat": "categorical",
+      "existingchecking": "categorical", 
+      "credithistory": "categorical",
+      "purpose": "categorical",
+      "creditamount_cat": "categorical",
+      "savings": "categorical",
+      "employmentsince": "categorical",
+      "installmentrate_cat": "categorical",
+      "otherdebtors": "categorical",
+      "residencesince_cat": "categorical",
+      "property": "categorical",
+      "age_cat": "categorical",
+      "otherinstallmentplans": "categorical",
+      "housing": "categorical",
+      "existingcredits_cat": "categorical",
+      "job": "categorical",
+      "peopleliable_cat": "categorical",
+      "telephone": "categorical",
+      "foreignworker": "categorical",
+      "gender": "categorical",
+      "classification": "categorical"
+    }
+  },
+  
+  "constraint_settings": {
+    "whitelist_edges": [],
+    
+    "blacklist_edges": {
+      "demographic_constraints": [
+        ["duration_cat", "gender"],
+        ["existingchecking", "gender"],
+        ["credithistory", "gender"],
+        ["purpose", "gender"],
+        ["creditamount_cat", "gender"],
+        ["savings", "gender"],
+        ["employmentsince", "gender"],
+        ["installmentrate_cat", "gender"],
+        ["otherdebtors", "gender"],
+        ["residencesince_cat", "gender"],
+        ["property", "gender"],
+        ["age_cat", "gender"],
+        ["otherinstallmentplans", "gender"],
+        ["housing", "gender"],
+        ["existingcredits_cat", "gender"],
+        ["job", "gender"],
+        ["peopleliable_cat", "gender"],
+        ["telephone", "gender"],
+        ["foreignworker", "gender"],
+        ["classification", "gender"],
+        
+        ["duration_cat", "age_cat"],
+        ["existingchecking", "age_cat"],
+        ["credithistory", "age_cat"],
+        ["purpose", "age_cat"],
+        ["creditamount_cat", "age_cat"],
+        ["savings", "age_cat"],
+        ["employmentsince", "age_cat"],
+        ["installmentrate_cat", "age_cat"],
+        ["otherdebtors", "age_cat"],
+        ["residencesince_cat", "age_cat"],
+        ["property", "age_cat"],
+        ["gender", "age_cat"],
+        ["otherinstallmentplans", "age_cat"],
+        ["housing", "age_cat"],
+        ["existingcredits_cat", "age_cat"],
+        ["job", "age_cat"],
+        ["peopleliable_cat", "age_cat"],
+        ["telephone", "age_cat"],
+        ["classification", "age_cat"],
+        
+        ["duration_cat", "foreignworker"],
+        ["existingchecking", "foreignworker"],
+        ["credithistory", "foreignworker"],
+        ["purpose", "foreignworker"],
+        ["creditamount_cat", "foreignworker"],
+        ["savings", "foreignworker"],
+        ["employmentsince", "foreignworker"],
+        ["installmentrate_cat", "foreignworker"],
+        ["otherdebtors", "foreignworker"],
+        ["residencesince_cat", "foreignworker"],
+        ["property", "foreignworker"],
+        ["age_cat", "foreignworker"],
+        ["otherinstallmentplans", "foreignworker"],
+        ["housing", "foreignworker"],
+        ["existingcredits_cat", "foreignworker"],
+        ["job", "foreignworker"],
+        ["peopleliable_cat", "foreignworker"],
+        ["telephone", "foreignworker"],
+        ["gender", "foreignworker"]
+      ],
+      
+      "fairness_constraints": [
+        ["gender", "classification"],
+        ["foreignworker", "classification"],
+        ["age_cat", "classification"],
+        ["job", "classification"],
+        ["housing", "classification"],
+        ["property", "classification"],
+        ["savings", "classification"],
+        ["telephone", "classification"],
+        ["otherdebtors", "classification"]
+      ]
+    }
+  },
+  
+  "experiment_settings": {
+    "max_dags": 100,
+    "save_models": false,
+    "generate_synthetic": true,
+    "synthetic_variants": {
+      "double": false,
+      "balanced": true,
+      "protected": false
+    }
+  },
+
+  "counterfactual_settings": {
+    "sample_percentage": 1.0,
+    "min_samples": 10,
+    "random_state": 42,
+    "cutoff_threshold": 0.5,
+    "calculate_pse": true,
+    "pse_sample_size": 300,
+    "max_paths": 3
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "dataset": "compas",
+  "results_root": "results/experiments",
+  "experiments": [
+    "baseline",
+    "soft_fairness_only",
+    "soft_fairness"
+  ],
+  "run_dirs": {
+    "baseline": "results\\experiments\\compas\\baseline_20260510_132856",
+    "soft_fairness_only": "results\\experiments\\compas\\soft_fairness_only_lambda_0p4_20260513_082612",
+    "soft_fairness": "results\\experiments\\compas\\soft_fairness_lambda_0p4_20260513_122643"
+  },
+  "output": "docs/compas_causal_fairness_table_lambda_0p4.tex"
+}

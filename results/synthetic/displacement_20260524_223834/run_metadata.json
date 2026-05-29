@@ -1,0 +1,15 @@
+{
+  "timestamp": "2026-05-24T22:38:34.529060",
+  "git_hash": "c426c8ec659c06f0fe66648d1be86f795f46fd06",
+  "n_rows": 200,
+  "config": {
+    "mode": "displacement",
+    "smoke": false,
+    "n_jobs": -1,
+    "n_tasks": 200,
+    "plot_tradeoff": false,
+    "enable_temporal_blacklist": true,
+    "n_bins": 5,
+    "verbose": false
+  }
+}

@@ -1,0 +1,59 @@
+\begin{table*}[t]
+\centering
+\caption{%
+Causal fairness on the Dutch dataset.
+All metrics are absolute magnitudes ($\downarrow$ = better).
+\textit{Causal Fairness}: TE/NDE/PSE are path-specific causal effects;
+ITE is the mean individual treatment effect; CF violation rate is the
+fraction of disadvantaged-group individuals whose prediction changes
+under counterfactual intervention.
+\textit{Group Fairness}: DPD and EO are group-fairness metrics (XGBoost).
+\textbf{Bold}: best per metric (by mean). Entries show mean $\pm$ std
+when multiple DAGs are available. $^\dagger$Baseline DAG has 45 edges; other conditions use 29/30/44 edges.
+}
+\label{tab:causal_fairness}
+\renewcommand{\arraystretch}{1.1}
+\footnotesize
+\begin{tabular}{@{}lll cccc@{}}
+\toprule
+\multicolumn{3}{l}{\textbf{Metric}}
+  & \textbf{Baseline$^\dagger$} & \textbf{GES + Hard} & \textbf{+Soft Only} & \textbf{+Soft Fairness} \\
+  & & \# DAGs$\downarrow$  & 18 & 1 & 1 & 1 \\
+\midrule
+  \multirow{7}{*}{\makecell[l]{\textit{Country Birth}\\[-2pt]\scriptsize protected}} & \multirow{5}{*}{\scriptsize\textit{Causal}} & $|\mathrm{TE}|$ $\downarrow$ & 0.0688 $\pm$ 0.0387 & 0.0101 & 0.0214 & \textbf{0.0050} \\
+  & & $|\mathrm{NDE}|$ $\downarrow$ & 0.0504 $\pm$ 0.0081 & \textbf{0.0027} & 0.0197 & 0.0076 \\
+  & & $|\mathrm{PSE}|$ $\downarrow$ & 0.0335 $\pm$ 0.0236 & 0.0240 & \textbf{0.0017} & 0.0070 \\
+  & & $|\mathrm{ITE}|$ mean $\downarrow$ & 0.0688 $\pm$ 0.0387 & 0.0101 & 0.0214 & \textbf{0.0050} \\
+  & & CF viol.\ rate (\%) $\downarrow$ & 35.80 $\pm$ 3.74 & 42.24 & \textbf{22.64} & 49.19 \\
+  & \multirow{2}{*}{\scriptsize\textit{Group}} & DPD $\downarrow$ & 0.1106 $\pm$ 0.0651 & 0.0578 & \textbf{0.0486} & 0.1858 \\
+  & & EO $\downarrow$ & 0.1092 $\pm$ 0.0509 & 0.1378 & \textbf{0.0307} & 0.2697 \\
+\cmidrule(lr){1-7}
+  \multirow{7}{*}{\makecell[l]{\textit{Sex Enc}\\[-2pt]\scriptsize protected}} & \multirow{5}{*}{\scriptsize\textit{Causal}} & $|\mathrm{TE}|$ $\downarrow$ & 0.1743 $\pm$ 0.0127 & \textbf{0.0083} & 0.0300 & 0.0085 \\
+  & & $|\mathrm{NDE}|$ $\downarrow$ & 0.1743 $\pm$ 0.0127 & 0.0095 & 0.0237 & \textbf{0.0090} \\
+  & & $|\mathrm{PSE}|$ $\downarrow$ & \textbf{0.0000 $\pm$ 0.0000} & 0.0029 & 0.0024 & 0.0049 \\
+  & & $|\mathrm{ITE}|$ mean $\downarrow$ & 0.1743 $\pm$ 0.0127 & \textbf{0.0083} & 0.0300 & 0.0085 \\
+  & & CF viol.\ rate (\%) $\downarrow$ & 31.75 $\pm$ 4.54 & 25.07 & \textbf{17.80} & 25.80 \\
+  & \multirow{2}{*}{\scriptsize\textit{Group}} & DPD $\downarrow$ & 0.3178 $\pm$ 0.0610 & 0.1005 & \textbf{0.0127} & 0.0277 \\
+  & & EO $\downarrow$ & 0.1859 $\pm$ 0.0471 & 0.1338 & \textbf{0.0354} & 0.0556 \\
+\cmidrule(lr){1-7}
+  \multirow{7}{*}{\makecell[l]{\textit{Citizenship}\\[-2pt]\scriptsize protected}} & \multirow{5}{*}{\scriptsize\textit{Causal}} & $|\mathrm{TE}|$ $\downarrow$ & 0.0108 $\pm$ 0.0102 & 0.0233 & \textbf{0.0030} & 0.0270 \\
+  & & $|\mathrm{NDE}|$ $\downarrow$ & 0.0107 $\pm$ 0.0106 & 0.0172 & \textbf{0.0012} & 0.0107 \\
+  & & $|\mathrm{PSE}|$ $\downarrow$ & \textbf{0.0013 $\pm$ 0.0008} & 0.0099 & 0.0041 & 0.0117 \\
+  & & $|\mathrm{ITE}|$ mean $\downarrow$ & 0.0108 $\pm$ 0.0102 & 0.0233 & \textbf{0.0030} & 0.0270 \\
+  & & CF viol.\ rate (\%) $\downarrow$ & 61.59 $\pm$ 5.98 & 67.36 & \textbf{16.57} & 70.71 \\
+  & \multirow{2}{*}{\scriptsize\textit{Group}} & DPD $\downarrow$ & 0.1689 $\pm$ 0.0943 & 0.1757 & 0.1810 & \textbf{0.1440} \\
+  & & EO $\downarrow$ & \textbf{0.2551 $\pm$ 0.1391} & 0.2609 & 0.3252 & 0.3121 \\
+\cmidrule(lr){1-7}
+  \multirow{7}{*}{\makecell[l]{\textit{Overall}\\[-2pt]\scriptsize avg. attrs}} & \multirow{5}{*}{\scriptsize\textit{Causal}} & $|\mathrm{TE}|$ $\downarrow$ & 0.0846 $\pm$ 0.0205 & 0.0139 & 0.0181 & \textbf{0.0135} \\
+  & & $|\mathrm{NDE}|$ $\downarrow$ & 0.0784 $\pm$ 0.0105 & 0.0098 & 0.0149 & \textbf{0.0091} \\
+  & & $|\mathrm{PSE}|$ $\downarrow$ & 0.0116 $\pm$ 0.0081 & 0.0123 & \textbf{0.0027} & 0.0079 \\
+  & & $|\mathrm{ITE}|$ mean $\downarrow$ & 0.0846 $\pm$ 0.0205 & 0.0139 & 0.0181 & \textbf{0.0135} \\
+  & & CF viol.\ rate (\%) $\downarrow$ & 43.05 $\pm$ 4.76 & 44.89 & \textbf{19.00} & 48.57 \\
+  & \multirow{2}{*}{\scriptsize\textit{Group}} & DPD $\downarrow$ & 0.1991 $\pm$ 0.0735 & 0.1113 & \textbf{0.0808} & 0.1192 \\
+  & & EO $\downarrow$ & 0.1834 $\pm$ 0.0790 & 0.1775 & \textbf{0.1304} & 0.2125 \\
+\midrule
+\multirow{2}{*}{\textit{Predictive Perf.}} & \multicolumn{2}{l}{F1 $\uparrow$} & \textbf{0.8238 $\pm$ 0.0225} & 0.6860 & 0.7952 & 0.7042 \\
+  & \multicolumn{2}{l}{AUROC $\uparrow$} & \textbf{0.8338 $\pm$ 0.0200} & 0.7131 & 0.8108 & 0.7151 \\
+\bottomrule
+\end{tabular}
+\end{table*}

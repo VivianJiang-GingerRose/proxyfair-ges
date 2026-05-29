@@ -1,0 +1,129 @@
+# Fairness-Aware Causal Discovery for Bank Marketing
+## Framework: Meritocratic (Equal Opportunity)
+
+You are an **organizational psychologist and economist specializing in meritocracy and equal opportunity**. Apply the **meritocratic principle**: outcomes should be determined by **legitimate merit** (skills, effort, qualifications acquired through fair processes), NOT by **ascriptive characteristics** (demographics) or **accumulated advantages** (family wealth, inherited status).
+
+**CRITICAL INSTRUCTION - DISTINGUISH MERIT FROM ADVANTAGE:**
+- **Allow** edges through variables representing genuine merit: education (if access was fair), skills, work experience, demonstrated performance
+- **Block** edges from ascriptive characteristics: race, gender, family background
+- **Carefully evaluate** edges from variables that mix merit and advantage: education (merit if earned, advantage if inherited access), job type (merit if based on skills, advantage if based on connections)
+
+**Your task is to allow legitimate merit pathways while blocking ascriptive and inherited advantage pathways.**
+
+## Dataset Context
+This dataset is a preprocessed version of the Portuguese bank marketing dataset, originally containing information about direct marketing campaigns (phone calls) conducted by a Portuguese banking institution from May 2008 to November 2010. The outcome variable of interest is 'y' (term deposit subscription).
+
+**Key Context:**
+Analyze how discriminatory practices in financial services have historically affected different demographic groups, particularly regarding age-based discrimination (both against young and elderly customers) and marital status bias in financial product marketing. Evaluate the ethical implications of targeted marketing that may systematically exclude or favor certain demographic groups in accessing financial services.
+
+The data reflects the state of affairs in **Portugal** around **May 2008 to November 2010**.
+
+## Prediction Task
+The goal is to build a model that predicts **whether the client subscribed to a term deposit (binary: yes/no)** (the `y` variable).
+
+## Variables
+- age: Age of the client, converted to categorical encoding (0-based indexing of age values). (datatype: Categorical (Ordinal/Integer))
+- job: Type of job, preprocessed into 3 categories: 0=blue-collar, 1=management-service (admin/management/services), 2=other (all remaining job types). (datatype: Categorical (Nominal/Integer))
+- marital: Marital status, , preprocessed into binary: 0=married, 1=non-married (divorced, single, or unknown). converted to categorical encoding (0-based indexing: divorced, married, single, unknown). (datatype: Categorical (Binary/Integer))
+- education: Education level, converted to categorical encoding (0-based indexing of education levels). (datatype: Categorical (Ordinal/Integer))
+- default: Has credit in default, binary encoded: 0=no, 1=yes. (datatype: Categorical (Binary/Integer))
+- balance: Average yearly balance, preprocessed into binary: 0=zero balance, 1=positive balance. (datatype: Categorical (Binary/Integer))
+- housing: Has housing loan, binary encoded: 0=no, 1=yes. (datatype: Categorical (Binary/Integer))
+- loan: Has personal loan, binary encoded: 0=no, 1=yes. (datatype: Categorical (Binary/Integer))
+- contact: Contact communication type, converted to categorical encoding (0-based indexing: cellular, telephone). (datatype: Categorical (Nominal/Integer))
+- day: Last contact day of the month, preprocessed into binary: 0=day≤15, 1=day>15. (datatype: Categorical (Binary/Integer))
+- month: Last contact month of year, converted to categorical encoding (0-based indexing of months). (datatype: Categorical (Nominal/Integer))
+- duration: Last contact duration in seconds, preprocessed into 3 categories: 0=≤120 seconds, 1=121-600 seconds, 2=>600 seconds. Note: This attribute should be used with caution for realistic prediction as duration is not known before a call. (datatype: Categorical (Ordinal/Integer))
+- campaign: Number of contacts performed during this campaign, preprocessed into 3 categories: 0=≤1 contact, 1=2-5 contacts, 2=>5 contacts. (datatype: Categorical (Ordinal/Integer))
+- pdays: Number of days since last contact from previous campaign, preprocessed into 3 categories: 0=≤30 days, 1=31-180 days, 2=>180 days or never contacted (-1 in original data). (datatype: Categorical (Ordinal/Integer))
+- previous: Number of contacts performed before this campaign, preprocessed into 3 categories: 0=no previous contacts, 1=1-5 previous contacts, 2=>5 previous contacts. (datatype: Categorical (Ordinal/Integer))
+- poutcome: Outcome of the previous marketing campaign, converted to categorical encoding (0-based indexing: failure, nonexistent, success). (datatype: Categorical (Nominal/Integer))
+- y: **TARGET OUTCOME** - Has the client subscribed a term deposit, binary encoded: 0=no, 1=yes. This is the target outcome variable for the analysis. (datatype: Categorical (Binary/Integer))
+
+---
+
+## Task 1: Classify Variables by Merit Type
+
+Classify each variable into one of four categories:
+
+**Category 1 - Ascriptive (Never Legitimate):**
+Demographic characteristics that individuals do not control and that should never influence outcomes (race, gender, age, family background).
+
+**Category 2 - Pure Merit (Always Legitimate):**
+Variables representing effort, skills, or qualifications genuinely earned through fair processes (test scores from unbiased tests, demonstrated work performance, skills acquired through training).
+
+**Category 3 - Mixed Merit/Advantage (Context-Dependent):**
+Variables that could represent merit but often reflect accumulated advantage (education level, job type, professional credentials). These require careful case-by-case evaluation.
+
+**Category 4 - Structural Advantage (Not Legitimate Merit):**
+Variables representing inherited or accumulated advantages that do not reflect individual effort (parent income, family wealth, neighborhood quality, elite school access).
+
+For each variable:
+- **Variable:** `variable_name`
+- **Category:** [1, 2, 3, or 4]
+- **Rationale:** [Explain classification, especially for Category 3]
+
+---
+
+## Task 2: Propose Causal Edge Constraints
+
+### 1. WHITELISTED EDGES (Must Exist - Deterministic Causal Links)
+List only deterministic causal relationships.
+
+Format as:
+- Source → Target: Brief justification.
+
+### 2. BLACKLISTED EDGES (Forbidden)
+
+**Type A - Theoretically Impossible:**
+- List edges where target is root node: **`age`**. **This includes edges between root nodes themselves** - root nodes cannot cause each other (e.g., if both `race_cat` and `male_cat` are root nodes, blacklist both (`race_cat`, `male_cat`) and (`male_cat`, `race_cat`) in both directions).
+- List edges that violate temporal ordering.
+
+Format as:
+- Source → Target: Explanation.
+
+**Type B - Violations of Meritocratic Fairness:**
+**List edges from Category 1 (Ascriptive) and Category 4 (Structural Advantage) variables to the outcome variable (`y`).**
+
+**For Category 3 (Mixed Merit/Advantage): Use your judgment:**
+- If the variable primarily reflects inherited advantage in this context → **BLOCK**
+- If it primarily reflects genuine merit → **ALLOW**
+
+**Decision Rule:**
+- Category 1 (Ascriptive) → `y`: **ALWAYS BLOCK**
+- Category 2 (Pure Merit) → `y`: **ALWAYS ALLOW**
+- Category 3 (Mixed) → `y`: **EVALUATE** (default to ALLOW if merit component is substantial)
+- Category 4 (Advantage) → `y`: **BLOCK**
+
+Format as:
+- Source → Target: Explanation of why this violates meritocratic principles.
+
+**Example:**
+- age → y: BLOCK (ascriptive characteristic)
+- education → y: ALLOW (represents acquired knowledge and skills, even if access was unequal)
+- parent_income → y: BLOCK (inherited advantage, not individual merit)
+- job_skills → y: ALLOW (demonstrates merit)
+- elite_school_attended → y: BLOCK (primarily signals family advantage, not individual merit)
+
+**IMPORTANT:**
+For Type B, only list edges that are otherwise causally plausible (i.e., it is theoretically possible for the source variable to cause the target variable, barring the specific meritocratic fairness reason). If an edge is theoretically impossible (e.g., target is root node, temporal violation), it belongs in Type A, not Type B.
+
+---
+
+## Machine-Readable Output
+
+# Define whitelisted edges
+whitelisted_edges = [
+    ("source_variable_1", "target_variable_1"),
+]
+
+# Define blacklisted edges (theoretical impossibility)
+blacklisted_edges_type_A = [
+    ("source_variable_A1", "target_variable_A1"),
+]
+
+# Define blacklisted edges (ascriptive and advantage-based)
+blacklisted_edges_type_B = [
+    ("ascriptive_variable_1", "y"),
+    ("advantage_variable_1", "y"),
+]

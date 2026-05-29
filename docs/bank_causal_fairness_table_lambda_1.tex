@@ -1,0 +1,50 @@
+\begin{table*}[t]
+\centering
+\caption{%
+Causal fairness on the Bank dataset.
+All metrics are absolute magnitudes ($\downarrow$ = better).
+\textit{Causal Fairness}: TE/NDE/PSE are path-specific causal effects;
+ITE is the mean individual treatment effect; CF violation rate is the
+fraction of disadvantaged-group individuals whose prediction changes
+under counterfactual intervention.
+\textit{Group Fairness}: DPD and EO are group-fairness metrics (XGBoost).
+\textbf{Bold}: best per metric. $^\dagger$Baseline DAG has 55 edges; other conditions use 93/106 edges.
+}
+\label{tab:causal_fairness}
+\renewcommand{\arraystretch}{1.1}
+\footnotesize
+\begin{tabular}{@{}lll ccc@{}}
+\toprule
+\multicolumn{3}{l}{\textbf{Metric}}
+  & \textbf{Baseline$^\dagger$} & \textbf{+Soft Only} & \textbf{+Soft Fairness} \\
+  & & \# DAGs$\downarrow$  & 2 & 1 & 1 \\
+\midrule
+  \multirow{7}{*}{\makecell[l]{\textit{Marital}\\[-2pt]\scriptsize protected}} & \multirow{5}{*}{\scriptsize\textit{Causal}} & $|\mathrm{TE}|$ $\downarrow$ & 0.0243 & \textbf{0.0002} & 0.0067 \\
+  & & $|\mathrm{NDE}|$ $\downarrow$ & 0.0199 & 0.0043 & \textbf{0.0031} \\
+  & & $|\mathrm{PSE}|$ $\downarrow$ & 0.0044 & 0.0041 & \textbf{0.0036} \\
+  & & $|\mathrm{ITE}|$ mean $\downarrow$ & 0.0243 & \textbf{0.0002} & 0.0067 \\
+  & & CF viol.\ rate (\%) $\downarrow$ & \textbf{4.18} & 25.60 & 18.44 \\
+  & \multirow{2}{*}{\scriptsize\textit{Group}} & DPD $\downarrow$ & 0.0385 & \textbf{0.0085} & 0.0141 \\
+  & & EO $\downarrow$ & 0.1240 & \textbf{0.0396} & 0.0565 \\
+\cmidrule(lr){1-6}
+  \multirow{7}{*}{\makecell[l]{\textit{Age}\\[-2pt]\scriptsize protected}} & \multirow{5}{*}{\scriptsize\textit{Causal}} & $|\mathrm{TE}|$ $\downarrow$ & 0.0104 & 0.0158 & \textbf{0.0057} \\
+  & & $|\mathrm{NDE}|$ $\downarrow$ & 0.0104 & \textbf{0.0019} & 0.0054 \\
+  & & $|\mathrm{PSE}|$ $\downarrow$ & \textbf{0.0000} & 0.0139 & 0.0044 \\
+  & & $|\mathrm{ITE}|$ mean $\downarrow$ & 0.0104 & 0.0158 & \textbf{0.0057} \\
+  & & CF viol.\ rate (\%) $\downarrow$ & \textbf{10.54} & 22.52 & 13.73 \\
+  & \multirow{2}{*}{\scriptsize\textit{Group}} & DPD $\downarrow$ & 0.0264 & \textbf{0.0102} & 0.0111 \\
+  & & EO $\downarrow$ & 0.0743 & 0.1390 & \textbf{0.0366} \\
+\cmidrule(lr){1-6}
+  \multirow{7}{*}{\makecell[l]{\textit{Overall}\\[-2pt]\scriptsize avg. attrs}} & \multirow{5}{*}{\scriptsize\textit{Causal}} & $|\mathrm{TE}|$ $\downarrow$ & 0.0174 & 0.0080 & \textbf{0.0062} \\
+  & & $|\mathrm{NDE}|$ $\downarrow$ & 0.0152 & \textbf{0.0031} & 0.0042 \\
+  & & $|\mathrm{PSE}|$ $\downarrow$ & \textbf{0.0022} & 0.0090 & 0.0040 \\
+  & & $|\mathrm{ITE}|$ mean $\downarrow$ & 0.0174 & 0.0080 & \textbf{0.0062} \\
+  & & CF viol.\ rate (\%) $\downarrow$ & \textbf{7.36} & 24.06 & 16.09 \\
+  & \multirow{2}{*}{\scriptsize\textit{Group}} & DPD $\downarrow$ & 0.0324 & \textbf{0.0094} & 0.0126 \\
+  & & EO $\downarrow$ & 0.0992 & 0.0893 & \textbf{0.0466} \\
+\midrule
+\multirow{2}{*}{\textit{Predictive Perf.}} & \multicolumn{2}{l}{F1 $\uparrow$} & \textbf{0.3976} & 0.2757 & 0.0993 \\
+  & \multicolumn{2}{l}{AUROC $\uparrow$} & \textbf{0.6417} & 0.5844 & 0.5201 \\
+\bottomrule
+\end{tabular}
+\end{table*}
