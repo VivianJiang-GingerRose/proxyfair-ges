@@ -84,9 +84,18 @@ The demo prints TE/PSE-style structural diagnostics for a small run so ICDM read
 ### Install
 
 ```bash
-git clone <repository-url>
-cd FairCausalDiscovery
+git clone https://github.com/VivianJiang-GingerRose/fair-causal-discovery-icdm.git
+cd fair-causal-discovery-icdm
 poetry install
+poetry run python --version
+```
+
+The repository directory in this workspace may appear as `FairCausalDiscovery_ICDM`; the canonical GitHub repository name is `fair-causal-discovery-icdm`.
+
+### Optional: Run Tests
+
+```bash
+poetry run pytest tests/synthetic -q
 ```
 
 ## Notes on LLM Constraint Elicitation
