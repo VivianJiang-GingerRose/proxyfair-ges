@@ -1,34 +1,156 @@
-# Fair Causal Discovery ICDM: ProxyFair with Equivalence-Class Search
+# ProxyFair: Fairness-Aware Causal Discovery via Equivalence-Class Search
 
-This repository contains the implementation used for the ProxyFair paper.
+![Python 3.11](https://img.shields.io/badge/python-3.11-blue) ![License: MIT](https://img.shields.io/badge/license-MIT-green)
 
-ProxyFair is a fairness-aware extension of Greedy Equivalence Search (GES) that combines:
-- hard normative constraints (forbidden/required edges), and
-- a continuous edge-level proxy penalty based on proxy-excess fraction.
+ProxyFair is a fairness-aware extension of Greedy Equivalence Search (GES) for causal graph learning. It embeds fairness directly into the score-based search — via an information-theoretic *proxy-excess fraction* penalty — while provably preserving the Markov equivalence class structure that makes GES theoretically sound. A two-phase design separates orientation-invariant penalization (Phase 1) from fair DAG extraction (Phase 2), enabling hard normative constraints and soft continuous penalties to coexist without breaking score equivalence.
 
-The design follows a two-phase procedure to preserve score equivalence:
-- Phase 1: CPDAG search with a symmetric fairness penalty.
-- Phase 2: Fair DAG extraction inside the learned equivalence class.
+```mermaid
+flowchart LR
+    A["Data + Prior Knowledge\n(blacklist / whitelist edges)"] --> B
 
-## Core Algorithm Mapping
+    subgraph Phase1["Phase 1 — Score-Equivalent CPDAG Search"]
+        B["Compute proxy-excess fractions\nπᴵ(i,j) via conditional MI\n[fairness_scoring.py]"]
+        B --> C["Symmetric edge penalty Ψ_sym\n(orientation-invariant)\n[fairness_scoring.py]"]
+        C --> D["Fair-BIC local score\nBIC − λ · N · Ψ_sym\n[ges_runner_causal_learn.py]"]
+        D --> E["GES search on modified score\n→ CPDAG (equivalence class)\n[causal_learn fork]"]
+    end
 
-- Phase 1 scoring primitives: `src/faircausal/core/fairness_scoring.py`
-  - `compute_edge_proxy_fractions(...)` computes edge-level proxy-excess fractions $\pi^\Sigma$.
-  - `compute_outcome_relevance(...)` computes static outcome relevance $\rho_{adj}$.
-  - `compute_symmetric_penalty_from_pi(...)` computes symmetric edge penalty $\Psi_{sym}$.
-- Constrained GES orchestration: `src/faircausal/core/ges_runner_causal_learn.py`
-- Phase 2 DAG selection and fairness analysis: `src/faircausal/core/counterfactual_fairness_runner.py`
+    subgraph Phase2["Phase 2 — Fair DAG Extraction"]
+        F["Enumerate DAG extensions\nof the CPDAG"]
+        F --> G["Rank by directed\nfairness penalty\n[counterfactual_fairness_runner.py]"]
+        G --> H["Select fairest DAG\n→ fit SCM\n→ evaluate TE / NDE / PSE"]
+    end
+
+    E --> F
+    H --> I["Fairness Report\n& LaTeX Tables"]
+```
+
+---
+
+## Quick Start
+
+**Requirements**: Python 3.11, [Poetry](https://python-poetry.org/)
+
+```bash
+git clone <repository-url>
+cd <cloned-folder>
+poetry install
+
+# 1. Run the demo (< 2 minutes): vanilla GES vs ProxyFair on synthetic data
+poetry run python examples/demo_proxyfair.py
+
+# 2. Verify correctness: 8-module test suite
+poetry run pytest tests/synthetic -q
+
+# 3. Browse pre-computed paper tables without running any experiments
+#    results/real_world/   — LaTeX tables for Law, COMPAS, Dutch Census, Bank
+#    results/synthetic/    — CSV + LaTeX for Table 1 (single-attribute) and Table 2 (displacement)
+```
+
+---
+
+## Pre-Computed Results
+
+All paper tables are already generated and committed. No experiment needs to run to read them.
+
+| Paper artifact | File |
+|---|---|
+| Table 1 — Synthetic single-attribute (φ sweep) | `results/synthetic/result1_*/result1_phi05_main_table.tex` |
+| Table 2 — Synthetic displacement (multi-attribute) | `results/synthetic/displacement_*/displacement_main_table.tex` |
+| Real-world: Law School | `results/real_world/law_causal_fairness_table_lambda_01.tex` |
+| Real-world: COMPAS | `results/real_world/compas_causal_fairness_table_lambda_*.tex` |
+| Real-world: Dutch Census | `results/real_world/dutch_causal_fairness_table_lambda_*.tex` |
+| Real-world: Bank Marketing | `results/real_world/bank_causal_fairness_table_lambda_*.tex` |
+| COMPAS Pareto front data | `results/paper_results/pareto_scatter_data_compas.csv` |
+| LLM constraint validation | `results/real_world/llm_validation_table.tex` |
+
+---
+
+## Algorithm Variants
+
+Five variants are evaluated across all experiments, forming a systematic ablation:
+
+| Variant | Phase 1 penalty | Phase 2 selection | What it isolates |
+|---|---|---|---|
+| `vanilla_ges` | None | None | GES baseline |
+| `hard_constraints` | None (hard blacklist only) | None | Effect of normative constraints alone |
+| `fair_mec_phase1` | Symmetric proxy penalty | None | Phase 1 fairness signal, no Phase 2 |
+| `fair_mec_marginal_only` | Marginal proxy (no outcome relevance) | Directed penalty | Ablation: outcome relevance contribution |
+| `fair_mec_full` | Symmetric proxy penalty | Directed penalty | **Full ProxyFair** |
+
+---
 
 ## Repository Layout
 
-- `src/faircausal/core/`: ProxyFair algorithm, GES orchestration, fairness analysis
-- `src/faircausal/causal_learn/`: local causal-learn fork used by the project
-- `src/experiments/`: experiment runners, plotting, and table compilation
-- `src/faircausal/data/`: dataset loaders and synthetic generators
-- `tests/synthetic/`: synthetic and integration tests
-- `results/`: generated experiment outputs
+```
+src/faircausal/core/              # ProxyFair algorithm
+  fairness_scoring.py               Phase 1 proxy-excess fractions and symmetric penalty
+  ges_runner_causal_learn.py        GES orchestration with fair-BIC score
+  counterfactual_fairness_runner.py Phase 2 DAG selection, SCM fitting, TE/NDE/PSE evaluation
+  prior_knowledge_processor.py      Hard constraint matrices (blacklist / whitelist)
+  lambda_selection.py               λ selection: grid search, elbow, normative anchoring
+  causal_data_utils.py              Data preparation for GES and SCM fitting
+  fairness_metrics.py               AIF360-based individual fairness evaluation
+  ml_classifer_runner.py            Fairness audit via LR / RF / XGBoost / MLP
 
-## Reproducing Main Paper Artifacts
+src/faircausal/causal_learn/      # Local causal-learn fork (modified GES scoring)
+src/faircausal/data/              # Dataset loaders and synthetic data generators
+  synthetic/archetype_definitions.py  Three synthetic archetypes (selective suppression,
+                                       confounder, multi-attribute displacement)
+
+src/experiments/                  # Experiment runners and analysis
+  run_synthetic_main_grid.py        Grid sweeps over λ and proxy strength φ
+  main_runner.py                    Real-world experiment pipeline
+  synthetic_ges_runner.py           Single-run orchestrator (data → GES → metrics → CSV row)
+  compile_causal_fairness_analysis_table.py  LaTeX table compilation
+  plot_pareto_front.py              AUROC vs |TE|/|PSE| Pareto scatter plots
+  configs/                          Per-dataset JSON configs (protected attrs, constraints)
+
+tests/synthetic/                  # Test suite (8 modules)
+results/                          # Pre-generated experiment outputs
+data/                             # Preprocessed real-world datasets
+```
+
+---
+
+## Core Algorithm Mapping
+
+**Phase 1 — scoring primitives** (`src/faircausal/core/fairness_scoring.py`)
+- `compute_edge_proxy_fractions(...)` — proxy-excess fraction $\pi^\Sigma(i,j)$ using conditional mutual information and marginal association
+- `compute_outcome_relevance(...)` — static outcome relevance $\rho_{adj}(i)$ weighting edges by downstream outcome influence
+- `compute_symmetric_penalty_from_pi(...)` — symmetric penalty $\Psi_{sym}(i,j) = \tfrac{1}{2}(\psi(i\to j) + \psi(j\to i))$, ensuring equivalent DAGs receive identical scores
+
+**Phase 1 — constrained GES** (`src/faircausal/core/ges_runner_causal_learn.py`)
+- `run_ges(...)` — integrates fair-BIC score into the local causal-learn fork; enforces hard blacklist / whitelist constraints
+
+**Phase 2 — DAG selection and fairness analysis** (`src/faircausal/core/counterfactual_fairness_runner.py`)
+- `select_fairest_dag(...)` — ranks CPDAG extensions by directed fairness penalty
+- `analyze_all_dags_improved_flow(...)` — SCM fitting, synthetic counterfactual generation, TE / NDE / PSE computation
+
+---
+
+## Test Suite
+
+Eight modules in `tests/synthetic/` provide correctness guarantees and regression coverage:
+
+| Module | What it validates |
+|---|---|
+| `test_score_equivalence.py` | **Symmetric penalty is orientation-invariant**: all DAGs in a Markov equivalence class receive the same Phase 1 score — the core theoretical guarantee of ProxyFair |
+| `test_calibration.py` | Proxy-strength monotonicity; calibration error < 5% for target φ; category diagnostics |
+| `test_integration.py` | End-to-end: hard constraints, fairness constraints, temporal blacklists; learned graphs comply |
+| `test_experiments.py` | Smoke tests for all 6 experimental modes; λ sweep configurations; ablation trends |
+| `test_generation.py` | Synthetic data generation; archetype instantiation; structural correctness |
+| `test_ges_phase2_only.py` | Phase 2 DAG selection in isolation; fairness ranking consistency |
+| `test_compile_causal_fairness_analysis_table.py` | Table compilation; column formatting; LaTeX output correctness |
+| `test_statistical_tests.py` | Significance testing utilities used across experiments |
+
+```bash
+poetry run pytest tests/synthetic -q
+```
+
+---
+
+## Reproducing Paper Artifacts
 
 ### Table 1 (Synthetic single-attribute)
 
@@ -64,17 +186,9 @@ pwsh -File scripts/run_compas_pareto_grid.ps1
 poetry run python src/experiments/plot_pareto_front.py --dataset compas
 ```
 
-## Quick Demo
+---
 
-Run a lightweight synthetic comparison between vanilla GES and ProxyFair:
-
-```bash
-poetry run python examples/demo_proxyfair.py
-```
-
-The demo prints TE/PSE-style structural diagnostics for a small run so ICDM readers can quickly verify behavior.
-
-## Setup
+## Full Setup
 
 ### Prerequisites
 
@@ -85,24 +199,22 @@ The demo prints TE/PSE-style structural diagnostics for a small run so ICDM read
 
 ```bash
 git clone <repository-url>
-cd fair-causal-discovery-icdm
+cd <cloned-folder>
 poetry install
 poetry run python --version
 ```
 
-The repository directory in this workspace may appear as `FairCausalDiscovery_ICDM`; use your cloned folder name if it differs.
-
-### Optional: Run Tests
+### Run Tests
 
 ```bash
 poetry run pytest tests/synthetic -q
 ```
 
+---
+
 ## Notes on LLM Constraint Elicitation
 
-This repository also includes optional LLM tooling under `src/faircausal/llm/` used for role elicitation and constraint generation in some experiments. The ProxyFair algorithm itself does not require LLM inference at runtime when constraints are already provided.
-
-Example LLM analysis command:
+`src/faircausal/llm/` contains optional tooling for automated role elicitation and constraint generation used in some experiments. ProxyFair does not require LLM inference at runtime when constraints are provided via the JSON config.
 
 ```bash
 poetry run python -m src.faircausal.llm.fairness_framework_analysis --dataset bank
