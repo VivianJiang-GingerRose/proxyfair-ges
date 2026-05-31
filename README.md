@@ -43,8 +43,8 @@ poetry run python examples/demo_proxyfair.py
 poetry run pytest tests/synthetic -q
 
 # 3. Browse pre-computed paper tables without running any experiments
-#    results/real_world/   — LaTeX tables for Law, COMPAS, Dutch Census, Bank
-#    results/synthetic/    — CSV + LaTeX for Table 1 (single-attribute) and Table 2 (displacement)
+#    results/real_world/   — aggregate CSVs, per-attribute CSVs/Markdown tables, and Pareto plots
+#    results/synthetic/    — timestamped run folders with CSV + LaTeX tables
 ```
 
 ---
@@ -57,13 +57,10 @@ All paper tables are already generated and committed. No experiment needs to run
 |---|---|
 | Table 1 — Synthetic single-attribute (φ sweep) | `results/synthetic/result1_*/result1_phi05_main_table.tex` |
 | Table 2 — Synthetic displacement (multi-attribute) | `results/synthetic/displacement_*/displacement_main_table.tex` |
-| Real-world: Law School | `results/real_world/law_causal_fairness_table_lambda_01.tex` |
-| Real-world: COMPAS | `results/real_world/compas_causal_fairness_table_lambda_*.tex` |
-| Real-world: Dutch Census | `results/real_world/dutch_causal_fairness_table_lambda_*.tex` |
-| Real-world: Bank Marketing | `results/real_world/bank_causal_fairness_table_lambda_*.tex` |
-| COMPAS Pareto front data | `results/paper_results/pareto_scatter_data_compas.csv` |
-| LLM constraint validation | `results/real_world/llm_validation_table.tex` |
-
+| Real-world per-attribute markdown tables (Law, COMPAS, Dutch, Bank) | `results/real_world/formatted_tables/*_per_attribute_table.md` |
+| Real-world aggregate CSVs (Law, COMPAS, Dutch, Bank) | `results/real_world/aggregate/*_aggregate_results.csv` |
+| Real-world per-attribute CSVs (Law, COMPAS, Dutch, Bank) | `results/real_world/per_attribute/*_per_attribute_results.csv` |
+| COMPAS Pareto front data | `results/real_world/plots/pareto_scatter_data_compas.csv` |
 ---
 
 ## Algorithm Variants
