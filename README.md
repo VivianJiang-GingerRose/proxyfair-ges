@@ -4,6 +4,12 @@
 
 ProxyFair is a fairness-aware extension of Greedy Equivalence Search (GES) for causal graph learning. It embeds fairness directly into the score-based search — via an information-theoretic *proxy-excess fraction* penalty — while provably preserving the Markov equivalence class structure that makes GES theoretically sound. A two-phase design separates orientation-invariant penalization (Phase 1) from fair DAG extraction (Phase 2), enabling hard normative constraints and soft continuous penalties to coexist without breaking score equivalence.
 
+If you are new to this repository, use this order:
+1. Run the demo (`examples/demo_proxyfair.py`) to verify your environment.
+2. Run the synthetic tests (`tests/synthetic`) to verify correctness.
+3. Open pre-computed tables in `results/` (no experiments required).
+4. Run the reproduction commands in [Reproducing Paper Artifacts](#reproducing-paper-artifacts) only if you need fresh outputs.
+
 ```mermaid
 flowchart LR
     A["Data + Prior Knowledge\n(blacklist / whitelist edges)"] --> B
@@ -27,7 +33,7 @@ flowchart LR
 
 ---
 
-## Quick Start
+## Quick Start (New Users)
 
 **Requirements**: Python 3.11, [Poetry](https://python-poetry.org/)
 
@@ -42,10 +48,25 @@ poetry run python examples/demo_proxyfair.py
 # 2. Verify correctness: 8-module test suite
 poetry run pytest tests/synthetic -q
 
-# 3. Browse pre-computed paper tables without running any experiments
+# 3. Jump to the paper-cited real-world per-attribute tables first:
+#    see "Paper-Cited Per-Attribute Results (Real-World)" below.
+#    Then browse other pre-computed artifacts in results/.
 #    results/real_world/   — aggregate CSVs, per-attribute CSVs/Markdown tables, and Pareto plots
 #    results/synthetic/    — timestamped run folders with CSV + LaTeX tables
 ```
+
+---
+
+## Paper-Cited Per-Attribute Results (Real-World)
+
+These are the primary real-world files cited in the paper. Use the Markdown tables for paper-facing values and the CSV files for audit/reproducibility checks.
+
+| Dataset | Paper table (Markdown) | Raw metrics (CSV) |
+|---|---|---|
+| Law School | [law_per_attribute_table.md](results/real_world/formatted_tables/law_per_attribute_table.md) | [law_per_attribute_results.csv](results/real_world/per_attribute/law_per_attribute_results.csv) |
+| COMPAS | [compas_per_attribute_table.md](results/real_world/formatted_tables/compas_per_attribute_table.md) | [compas_per_attribute_results.csv](results/real_world/per_attribute/compas_per_attribute_results.csv) |
+| Dutch Census | [dutch_per_attribute_table.md](results/real_world/formatted_tables/dutch_per_attribute_table.md) | [dutch_per_attribute_results.csv](results/real_world/per_attribute/dutch_per_attribute_results.csv) |
+| Bank Marketing | [bank_per_attribute_table.md](results/real_world/formatted_tables/bank_per_attribute_table.md) | [bank_per_attribute_results.csv](results/real_world/per_attribute/bank_per_attribute_results.csv) |
 
 ---
 
@@ -55,11 +76,11 @@ All paper tables are already generated and committed. No experiment needs to run
 
 | Paper artifact | File |
 |---|---|
-| Table 1 — Synthetic single-attribute (φ sweep) | `results/synthetic/result1_*/result1_phi05_main_table.tex` |
-| Table 2 — Synthetic displacement (multi-attribute) | `results/synthetic/displacement_*/displacement_main_table.tex` |
-| Real-world per-attribute markdown tables (Law, COMPAS, Dutch, Bank) | `results/real_world/formatted_tables/*_per_attribute_table.md` |
-| Real-world aggregate CSVs (Law, COMPAS, Dutch, Bank) | `results/real_world/aggregate/*_aggregate_results.csv` |
-| Real-world per-attribute CSVs (Law, COMPAS, Dutch, Bank) | `results/real_world/per_attribute/*_per_attribute_results.csv` |
+| Table 1 — Synthetic single-attribute (φ sweep) | `results/synthetic/result1_20260524_150937/result1_phi05_main_table.tex` |
+| Table 2 — Synthetic displacement (multi-attribute) | `results/synthetic/displacement_20260524_223834/displacement_main_table.tex` |
+| Real-world per-attribute markdown tables (Law, COMPAS, Dutch, Bank) | See [Paper-Cited Per-Attribute Results (Real-World)](#paper-cited-per-attribute-results-real-world) |
+| Real-world aggregate CSVs (Law, COMPAS, Dutch, Bank) | `results/real_world/aggregate/law_aggregate_results.csv`, `results/real_world/aggregate/compas_aggregate_results.csv`, `results/real_world/aggregate/dutch_aggregate_results.csv`, `results/real_world/aggregate/bank_aggregate_results.csv` |
+| Real-world per-attribute CSVs (Law, COMPAS, Dutch, Bank) | See [Paper-Cited Per-Attribute Results (Real-World)](#paper-cited-per-attribute-results-real-world) |
 | COMPAS Pareto front data | `results/real_world/plots/pareto_scatter_data_compas.csv` |
 ---
 
@@ -149,6 +170,21 @@ poetry run pytest tests/synthetic -q
 
 ## Reproducing Paper Artifacts
 
+### Submission Checklist Mapping (Result -> Exact Command -> Output)
+
+Synthetic runs create timestamped folders in the format `results/synthetic/<mode>_YYYYMMDD_HHMMSS/`.
+
+| Paper result | Exact command to run | Output location produced |
+|---|---|---|
+| Table 1 - Synthetic single-attribute (φ sweep) | `poetry run python src/experiments/run_synthetic_main_grid.py --mode result1 --n-jobs -1` | `results/synthetic/result1_YYYYMMDD_HHMMSS/result1_phi05_main_table.tex` |
+| Table 2 - Synthetic displacement (multi-attribute) | `poetry run python src/experiments/run_synthetic_main_grid.py --mode displacement --n-jobs -1` | `results/synthetic/displacement_YYYYMMDD_HHMMSS/displacement_main_table.tex` |
+| Real-world aggregate + per-attribute results (Law, COMPAS, Dutch, Bank; includes paper-cited per-attribute files) | `pwsh -File scripts/run_all_real_datasets.ps1` | `results/real_world/aggregate/law_aggregate_results.csv`, `results/real_world/aggregate/compas_aggregate_results.csv`, `results/real_world/aggregate/dutch_aggregate_results.csv`, `results/real_world/aggregate/bank_aggregate_results.csv`, `results/real_world/per_attribute/law_per_attribute_results.csv`, `results/real_world/per_attribute/compas_per_attribute_results.csv`, `results/real_world/per_attribute/dutch_per_attribute_results.csv`, `results/real_world/per_attribute/bank_per_attribute_results.csv`, `results/real_world/formatted_tables/law_per_attribute_table.md`, `results/real_world/formatted_tables/compas_per_attribute_table.md`, `results/real_world/formatted_tables/dutch_per_attribute_table.md`, `results/real_world/formatted_tables/bank_per_attribute_table.md` |
+| Causal-fairness analysis table (Law) | `poetry run python src/experiments/compile_causal_fairness_analysis_table.py --dataset law --output docs/law_causal_fairness_table_pse.tex` | `docs/law_causal_fairness_table_pse.tex` |
+| Causal-fairness analysis table (COMPAS) | `poetry run python src/experiments/compile_causal_fairness_analysis_table.py --dataset compas --output docs/compas_causal_fairness_table_pse.tex` | `docs/compas_causal_fairness_table_pse.tex` |
+| Causal-fairness analysis table (Dutch) | `poetry run python src/experiments/compile_causal_fairness_analysis_table.py --dataset dutch --output docs/dutch_causal_fairness_table_pse.tex` | `docs/dutch_causal_fairness_table_pse.tex` |
+| Causal-fairness analysis table (Bank) | `poetry run python src/experiments/compile_causal_fairness_analysis_table.py --dataset bank --output docs/bank_causal_fairness_table_pse.tex` | `docs/bank_causal_fairness_table_pse.tex` |
+| COMPAS Pareto scatter data/plot | `pwsh -File scripts/run_compas_pareto_grid.ps1` then `poetry run python src/experiments/plot_pareto_front.py --dataset compas` | `results/real_world/plots/pareto_scatter_data_compas.csv` |
+
 ### Table 1 (Synthetic single-attribute)
 
 ```bash
@@ -170,10 +206,10 @@ pwsh -File scripts/run_all_real_datasets.ps1
 ### Compile causal-fairness tables from completed runs
 
 ```bash
-poetry run python src/experiments/compile_causal_fairness_analysis_table.py --dataset law
-poetry run python src/experiments/compile_causal_fairness_analysis_table.py --dataset compas
-poetry run python src/experiments/compile_causal_fairness_analysis_table.py --dataset dutch
-poetry run python src/experiments/compile_causal_fairness_analysis_table.py --dataset bank
+poetry run python src/experiments/compile_causal_fairness_analysis_table.py --dataset law --output docs/law_causal_fairness_table_pse.tex
+poetry run python src/experiments/compile_causal_fairness_analysis_table.py --dataset compas --output docs/compas_causal_fairness_table_pse.tex
+poetry run python src/experiments/compile_causal_fairness_analysis_table.py --dataset dutch --output docs/dutch_causal_fairness_table_pse.tex
+poetry run python src/experiments/compile_causal_fairness_analysis_table.py --dataset bank --output docs/bank_causal_fairness_table_pse.tex
 ```
 
 ### Pareto plots (COMPAS)
@@ -186,6 +222,8 @@ poetry run python src/experiments/plot_pareto_front.py --dataset compas
 ---
 
 ## Full Setup
+
+This section is a reference for clean-environment installation. For the fastest path, use [Quick Start (New Users)](#quick-start-new-users).
 
 ### Prerequisites
 
