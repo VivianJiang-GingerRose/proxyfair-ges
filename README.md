@@ -8,6 +8,13 @@ This repository is the official camera-ready research artifact. It is designed
 to reproduce the paper's experiments and is not distributed as an installable
 Python library.
 
+## Paper
+
+- [ProxyFair extended version (PDF)](paper/ProxyFair_extended_version.pdf)
+
+This author-prepared extended version accompanies the camera-ready paper and
+provides the full presentation of the work.
+
 If you are new to this repository, use this order:
 1. Run the demo (`examples/demo_proxyfair.py`) to verify your environment.
 2. Run the synthetic tests (`tests/synthetic`) to verify correctness.
