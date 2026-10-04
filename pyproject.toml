@@ -13,7 +13,6 @@ pydot = "^3.0.3"
 numpy = "<2.0"
 pandas = "^2.2.3"
 networkx = "^3.4.2"
-pgmpy = "^1.0.0"
 fairlearn = "^0.12.0"
 xgboost = "^3.0.0"
 dowhy = "^0.12"
@@ -24,6 +23,12 @@ matplotlib = "^3.10.8"
 
 [tool.poetry.group.test.dependencies]
 pytest = ">=8,<10"
+
+[tool.poetry.group.pgmpy]
+optional = true
+
+[tool.poetry.group.pgmpy.dependencies]
+pgmpy = "^1.0.0"
 
 [tool.poetry.group.llm]
 optional = true

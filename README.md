@@ -277,6 +277,13 @@ poetry install --with llm
 poetry run python -m src.faircausal.llm.fairness_framework_analysis --dataset bank
 ```
 
+The unused alternate `ges_runner_pgmpy.py` implementation is also optional.
+Install it only when explicitly comparing against that backend:
+
+```bash
+poetry install --with pgmpy
+```
+
 ---
 
 ## Citation
