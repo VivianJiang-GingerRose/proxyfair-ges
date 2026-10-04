@@ -10,10 +10,14 @@ from contextlib import redirect_stdout
 # - Phase 2 (directed fair DAG extraction inside CPDAG): implemented in
 #   src/faircausal/core/counterfactual_fairness_runner.py (select_fairest_dag flow)
 
-# Add the causal_learn directory to path using relative path
+# Put the bundled causal-learn fork ahead of any separately installed release.
+# The upstream modules use absolute ``causallearn.*`` imports internally, so
+# appending this path would silently mix the fork with site-packages.
 current_dir = os.path.dirname(os.path.abspath(__file__))
-causal_learn_path = os.path.join(current_dir, "..", "causal_learn")
-sys.path.append(causal_learn_path)
+causal_learn_path = os.path.abspath(os.path.join(current_dir, "..", "causal_learn"))
+if causal_learn_path in sys.path:
+    sys.path.remove(causal_learn_path)
+sys.path.insert(0, causal_learn_path)
 
 # Import both GES versions for conditional use
 from src.faircausal.causal_learn.causallearn.search.ScoreBased.GES_fair import ges as ges_fair

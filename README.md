@@ -1,8 +1,12 @@
-# ProxyFair: Fairness-Aware Causal Discovery via Equivalence-Class Search
+# ProxyFair: Fairness-Aware Causal Discovery via Proxy-Excess Regularization
 
 ![Python 3.11](https://img.shields.io/badge/python-3.11-blue) ![License: MIT](https://img.shields.io/badge/license-MIT-green)
 
 ProxyFair is a fairness-aware extension of Greedy Equivalence Search (GES) for causal graph learning. It embeds fairness directly into the score-based search — via an information-theoretic *proxy-excess fraction* penalty — while provably preserving the Markov equivalence class structure that makes GES theoretically sound. A two-phase design separates orientation-invariant penalization (Phase 1) from fair DAG extraction (Phase 2), enabling hard normative constraints and soft continuous penalties to coexist without breaking score equivalence.
+
+This repository is the official camera-ready research artifact. It is designed
+to reproduce the paper's experiments and is not distributed as an installable
+Python library.
 
 If you are new to this repository, use this order:
 1. Run the demo (`examples/demo_proxyfair.py`) to verify your environment.
@@ -35,17 +39,17 @@ flowchart LR
 
 ## Quick Start (New Users)
 
-**Requirements**: Python 3.11, [Poetry](https://python-poetry.org/)
+**Requirements**: Python 3.11 and [Poetry](https://python-poetry.org/)
 
 ```bash
-git clone <repository-url>
-cd <cloned-folder>
-poetry install
+git clone https://github.com/VivianJiang-GingerRose/proxyfair-ges.git
+cd proxyfair-ges
+poetry install --with test
 
 # 1. Run the demo (< 2 minutes): vanilla GES vs ProxyFair on synthetic data
 poetry run python examples/demo_proxyfair.py
 
-# 2. Verify correctness: 8-module test suite
+# 2. Verify correctness: 9-module test suite
 poetry run pytest tests/synthetic -q
 
 # 3. Jump to the paper-cited real-world per-attribute tables first:
@@ -82,6 +86,11 @@ All paper tables are already generated and committed. No experiment needs to run
 | Real-world aggregate CSVs (Law, COMPAS, Dutch, Bank) | `results/real_world/aggregate/law_aggregate_results.csv`, `results/real_world/aggregate/compas_aggregate_results.csv`, `results/real_world/aggregate/dutch_aggregate_results.csv`, `results/real_world/aggregate/bank_aggregate_results.csv` |
 | Real-world per-attribute CSVs (Law, COMPAS, Dutch, Bank) | See [Paper-Cited Per-Attribute Results (Real-World)](#paper-cited-per-attribute-results-real-world) |
 | COMPAS Pareto front data | `results/real_world/plots/pareto_scatter_data_compas.csv` |
+
+The real-world commands use the committed processed datasets by default. See
+[Data provenance and redistribution](data/README.md) for source, schema, and
+licensing information. Raw source files are not needed for the paper runs.
+
 ---
 
 ## Algorithm Variants
@@ -149,7 +158,7 @@ data/                             # Preprocessed real-world datasets
 
 ## Test Suite
 
-Eight modules in `tests/synthetic/` provide correctness guarantees and regression coverage:
+Nine modules in `tests/synthetic/` provide correctness guarantees and regression coverage:
 
 | Module | What it validates |
 |---|---|
@@ -161,6 +170,7 @@ Eight modules in `tests/synthetic/` provide correctness guarantees and regressio
 | `test_ges_phase2_only.py` | Phase 2 DAG selection in isolation; fairness ranking consistency |
 | `test_compile_causal_fairness_analysis_table.py` | Table compilation; column formatting; LaTeX output correctness |
 | `test_statistical_tests.py` | Significance testing utilities used across experiments |
+| `test_real_world_data_loading.py` | Canonical processed-data loading for all supported datasets; missing-file and raw-preprocessing CLI validation |
 
 ```bash
 poetry run pytest tests/synthetic -q
@@ -203,6 +213,16 @@ poetry run python src/experiments/run_synthetic_main_grid.py --mode displacement
 pwsh -File scripts/run_all_real_datasets.ps1
 ```
 
+Each run reads the committed processed analysis file. To audit preprocessing
+from a raw file obtained under the source dataset's terms, opt in explicitly:
+
+```bash
+poetry run python src/experiments/main_runner.py --dataset bank --experiment baseline --reprocess-data --raw-data-path /path/to/bank-full.csv
+```
+
+Raw preprocessing happens in memory and does not overwrite the committed
+processed artifact.
+
 ### Compile causal-fairness tables from completed runs
 
 ```bash
@@ -229,13 +249,14 @@ This section is a reference for clean-environment installation. For the fastest 
 
 - Python 3.11
 - Poetry
+- PowerShell 7 (`pwsh`) for the real-world batch scripts
 
 ### Install
 
 ```bash
-git clone <repository-url>
-cd <cloned-folder>
-poetry install
+git clone https://github.com/VivianJiang-GingerRose/proxyfair-ges.git
+cd proxyfair-ges
+poetry install --with test
 poetry run python --version
 ```
 
@@ -252,5 +273,17 @@ poetry run pytest tests/synthetic -q
 `src/faircausal/llm/` contains optional tooling for automated role elicitation and constraint generation used in some experiments. ProxyFair does not require LLM inference at runtime when constraints are provided via the JSON config.
 
 ```bash
+poetry install --with llm
 poetry run python -m src.faircausal.llm.fairness_framework_analysis --dataset bank
 ```
+
+---
+
+## Citation
+
+If you use this repository, please cite the ProxyFair paper and the software
+artifact described in [`CITATION.cff`](CITATION.cff). The publication DOI,
+proceedings pages, and final BibTeX entry will be added when they are officially
+available.
+
+Repository: <https://github.com/VivianJiang-GingerRose/proxyfair-ges>

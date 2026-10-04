@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite the ProxyFair paper and this software artifact."
+title: "ProxyFair: Fairness-Aware Causal Discovery via Proxy-Excess Regularization"
+type: software
+version: 1.0.0
+authors:
+  - family-names: Jiang
+    given-names: Vivian
+repository-code: "https://github.com/VivianJiang-GingerRose/proxyfair-ges"
+license: MIT

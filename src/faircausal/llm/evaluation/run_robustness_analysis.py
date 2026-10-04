@@ -112,7 +112,7 @@ def main():
         '--dataset',
         type=str,
         default='bank',
-        choices=['bank', 'compas', 'law', 'german', 'dutch'],
+        choices=['bank', 'compas', 'law', 'dutch'],
         help='Dataset to analyze'
     )
     parser.add_argument(

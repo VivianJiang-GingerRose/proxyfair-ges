@@ -4,8 +4,7 @@
   
   "data_settings": {
     "data_loader_module": "src.faircausal.data.data_loader_compas",
-    "data_path": "data/data_compas/compas-scores-two-years_clean.csv",
-    "preprocessed_export_path": "data/data_compas/compas_preprocessed.csv"
+    "analysis_data_path": "data/data_compas/compas_preprocessed.csv"
   },
   
   "fairness_settings": {

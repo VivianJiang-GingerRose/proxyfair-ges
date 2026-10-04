@@ -213,7 +213,7 @@ Examples:
         '--dataset',
         type=str,
         required=True,
-        choices=['bank', 'compas', 'law', 'german', 'dutch'],
+        choices=['bank', 'compas', 'law', 'dutch'],
         help='Dataset to process'
     )
     

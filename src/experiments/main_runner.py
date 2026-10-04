@@ -43,6 +43,7 @@ from pathlib import Path
 # Add project root to path
 PROJECT_ROOT = Path(__file__).parent.parent.parent
 sys.path.append(str(PROJECT_ROOT))
+SUPPORTED_DATASETS = ("law", "compas", "dutch", "bank")
 
 from src.faircausal.core.causal_data_utils import get_data_for_algorithm
 from src.faircausal.core.prior_knowledge_processor import PriorKnowledgeProcessor
@@ -118,22 +119,23 @@ class DatasetConfig:
     @classmethod
     def get_available_datasets(cls):
         """Get list of available dataset configurations"""
-        configs_dir = Path("configs")
+        configs_dir = PROJECT_ROOT / "src" / "experiments" / "configs"
         if not configs_dir.exists():
             return []
         
         available = []
         for config_file in configs_dir.glob("*_config.json"):
             dataset_name = config_file.stem.replace("_config", "")
-            available.append(dataset_name)
+            if dataset_name in SUPPORTED_DATASETS:
+                available.append(dataset_name)
         
-        return available
+        return sorted(available)
 
 
 class ExperimentConfig:
     """Simplified configuration class for experiments"""
     
-    def __init__(self, dataset_name='german', experiment_type='baseline', custom_config=None):
+    def __init__(self, dataset_name='law', experiment_type='baseline', custom_config=None):
         # Load dataset-specific configuration
         self.dataset_config = DatasetConfig.load_dataset_config(dataset_name)
         self.dataset_name = dataset_name
@@ -239,6 +241,65 @@ class FairCausalDiscoveryRunner:
             print(f"Loaded data loader: {module_name}")
         except ImportError as e:
             raise ImportError(f"Could not import data loader module: {e}")
+
+    @staticmethod
+    def _resolve_input_path(path_value):
+        """Resolve repository-relative input paths without depending on the caller's cwd."""
+        path = Path(path_value).expanduser()
+        if not path.is_absolute():
+            path = PROJECT_ROOT / path
+        return path.resolve()
+
+    def _load_experiment_data(self, preprocessing_log_path=None):
+        """Load canonical processed data, or explicitly preprocess a supplied raw file."""
+        reprocess_data = bool(getattr(self.config, "reprocess_data", False))
+
+        if reprocess_data:
+            raw_data_path = getattr(self.config, "raw_data_path", None)
+            if not raw_data_path:
+                raise ValueError(
+                    "Raw preprocessing requires --raw-data-path PATH together with "
+                    "--reprocess-data."
+                )
+
+            resolved_raw_path = self._resolve_input_path(raw_data_path)
+            if not resolved_raw_path.is_file():
+                raise FileNotFoundError(f"Raw dataset not found: {resolved_raw_path}")
+
+            self._load_data_loader()
+            data_dict = self.data_loader.load_and_preprocess_data(
+                str(resolved_raw_path),
+                export_path=None,
+                log_file_path=preprocessing_log_path,
+            )
+            if "preprocessed" not in data_dict:
+                raise KeyError("Data loader did not return a 'preprocessed' dataframe.")
+            return data_dict["preprocessed"]
+
+        data_settings = self.dataset_config.get("data_settings", {})
+        analysis_data_path = data_settings.get("analysis_data_path")
+        if not analysis_data_path:
+            raise KeyError(
+                f"Dataset '{self.config.dataset_name}' does not define analysis_data_path."
+            )
+
+        resolved_analysis_path = self._resolve_input_path(analysis_data_path)
+        if not resolved_analysis_path.is_file():
+            raise FileNotFoundError(
+                f"Canonical processed dataset not found: {resolved_analysis_path}"
+            )
+
+        dataframe = pd.read_csv(resolved_analysis_path)
+        if preprocessing_log_path:
+            log_path = Path(preprocessing_log_path)
+            log_path.parent.mkdir(parents=True, exist_ok=True)
+            log_path.write_text(
+                "Loaded canonical processed dataset without reprocessing.\n"
+                f"Path: {resolved_analysis_path}\n"
+                f"Shape: {dataframe.shape}\n",
+                encoding="utf-8",
+            )
+        return dataframe
         
     def setup_logging(self, experiment_name="baseline"):
         """Set up logging directory and file with a unique run folder"""
@@ -277,28 +338,13 @@ class FairCausalDiscoveryRunner:
         3. Prepares both datasets for their respective purposes
         4. Returns split data to avoid winner's curse
         """
-        print("Loading, preprocessing, and splitting data to avoid winner's curse...")
+        print("Loading and splitting data to avoid winner's curse...")
         
         # ===== STEP 1: load data in =====
-        print(f"Loading and preprocessing {self.config.dataset_name} dataset...")
-        
-        # Load the data loader module (existing functionality)
-        self._load_data_loader()
-        
-        # Get data path from config (existing functionality)
-        data_path = self.dataset_config['data_settings']['data_path']
-        export_path = self.dataset_config['data_settings']['preprocessed_export_path']
-        
-        # Create separate log file
+        print(f"Loading {self.config.dataset_name} dataset...")
+
         preprocessing_log_path = str(self.run_dir / "data_preprocessing_log.txt")
-        data_dict = self.data_loader.load_and_preprocess_data(
-            data_path,
-            export_path=export_path,
-            log_file_path=preprocessing_log_path
-        )
-        
-        # Get the full GES preprocessed data (existing functionality)
-        df_full = data_dict['preprocessed']
+        df_full = self._load_experiment_data(preprocessing_log_path)
         
         # ===== STEP 2: Split data to avoid winner's curse =====
         
@@ -892,7 +938,7 @@ class FairCausalDiscoveryRunner:
             raise
 
 
-def run_multiple_experiments(dataset_name='german', custom_config=None):
+def run_multiple_experiments(dataset_name='law', custom_config=None):
     """Run multiple predefined experiments for a specific dataset"""
     
     experiments = ['baseline', 'domain_knowledge', 'fairness', 'soft_fairness_only', 'soft_fairness']
@@ -913,13 +959,18 @@ def run_multiple_experiments(dataset_name='german', custom_config=None):
     return results
 
 
-def main():
-    """Main function with command line interface"""
+def build_argument_parser():
+    """Build the public command-line interface for real-world experiments."""
     parser = argparse.ArgumentParser(description='Fair Causal Discovery Experiments')
-    parser.add_argument('--dataset', type=str, default='german',
-                       help='Which dataset to use')
-    parser.add_argument('--experiment', type=str, 
-                       choices=['baseline', 'domain_knowledge', 'fairness', 'soft_fairness', 'soft_fairness_only', 'all'], 
+    parser.add_argument(
+        '--dataset',
+        type=str,
+        choices=SUPPORTED_DATASETS,
+        default='law',
+        help='Which supported dataset to use',
+    )
+    parser.add_argument('--experiment', type=str,
+                       choices=['baseline', 'domain_knowledge', 'fairness', 'soft_fairness', 'soft_fairness_only', 'all'],
                        default='all', help='Which experiment to run')
     parser.add_argument('--config', type=str, help='Path to JSON configuration file')
     parser.add_argument('--max-dags', type=int, default=None, help='Maximum number of DAGs to analyze (overrides dataset config)')
@@ -928,20 +979,41 @@ def main():
     parser.add_argument('--calculate-pse', action='store_true', help='Enable Path-Specific Effect (PSE) calculation')
     parser.add_argument('--pse-sample-size', type=int, default=None, help='Optional subsample size for PSE evaluation')
     parser.add_argument('--max-paths', type=int, default=None, help='Maximum number of causal paths to evaluate per protected attribute')
-    
-    args = parser.parse_args()
+    parser.add_argument(
+        '--reprocess-data',
+        action='store_true',
+        help='Preprocess a caller-supplied raw dataset in memory instead of using the committed processed data',
+    )
+    parser.add_argument(
+        '--raw-data-path',
+        type=str,
+        default=None,
+        help='Path to a raw dataset; valid only together with --reprocess-data',
+    )
+    return parser
 
-    # Validate generic CLI controls
+
+def validate_cli_args(parser, args):
+    """Validate cross-argument constraints that argparse cannot express directly."""
     if args.max_dags is not None and args.max_dags <= 0:
         parser.error('--max-dags must be a positive integer when provided')
     if args.lambda_fairness is not None and args.lambda_fairness < 0:
         parser.error('--lambda-fairness must be non-negative when provided')
-
-    # Validate optional PSE controls
     if args.pse_sample_size is not None and args.pse_sample_size <= 0:
         parser.error('--pse-sample-size must be a positive integer when provided')
     if args.max_paths is not None and args.max_paths <= 0:
         parser.error('--max-paths must be a positive integer when provided')
+    if args.reprocess_data and not args.raw_data_path:
+        parser.error('--reprocess-data requires --raw-data-path PATH')
+    if args.raw_data_path and not args.reprocess_data:
+        parser.error('--raw-data-path is valid only together with --reprocess-data')
+
+
+def main():
+    """Main function with command line interface"""
+    parser = build_argument_parser()
+    args = parser.parse_args()
+    validate_cli_args(parser, args)
     
     # Load custom configuration if provided
     custom_config = {}
@@ -962,6 +1034,9 @@ def main():
         custom_config['pse_sample_size'] = args.pse_sample_size
     if args.max_paths is not None:
         custom_config['max_paths'] = args.max_paths
+    if args.reprocess_data:
+        custom_config['reprocess_data'] = True
+        custom_config['raw_data_path'] = args.raw_data_path
     
     if args.experiment == 'all':
         results = run_multiple_experiments(args.dataset, custom_config)

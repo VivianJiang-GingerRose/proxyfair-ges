@@ -1,10 +1,11 @@
 [tool.poetry]
-name = "faircausaldiscovery"
-version = "0.1.0"
-description = "causal discovery with fairness evaluation and causal reasoning from llm"
-authors = ["Anonymous"]
+name = "proxyfair-ges"
+version = "1.0.0"
+description = "Official research artifact for ProxyFair, a fairness-aware extension of Greedy Equivalence Search using proxy-excess regularization."
+authors = ["Vivian Jiang"]
 license = "MIT"
 readme = "README.md"
+package-mode = false
 
 [tool.poetry.dependencies]
 python = ">=3.11,<3.12"
@@ -12,23 +13,30 @@ pydot = "^3.0.3"
 numpy = "<2.0"
 pandas = "^2.2.3"
 networkx = "^3.4.2"
-notebook = "^7.3.1"
-ipykernel = "^6.29.5"
 pgmpy = "^1.0.0"
-console = "^0.9911"
 fairlearn = "^0.12.0"
 xgboost = "^3.0.0"
 dowhy = "^0.12"
 scipy = "1.12.0"
 aif360 = "^0.6.1"
-openai = "^1.58.1"
-anthropic = "^0.75.0"
-google-generativeai = "^0.8.3"
-python-dotenv = "^1.0.0"
-google-genai = "^1.56.0"
 seaborn = "^0.13.2"
 matplotlib = "^3.10.8"
 
+[tool.poetry.group.test.dependencies]
+pytest = ">=8,<10"
+
+[tool.poetry.group.llm]
+optional = true
+
+[tool.poetry.group.llm.dependencies]
+openai = "^1.58.1"
+anthropic = "^0.75.0"
+python-dotenv = "^1.0.0"
+google-genai = "^1.56.0"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests/synthetic"]
 
 [build-system]
 requires = ["poetry-core"]
